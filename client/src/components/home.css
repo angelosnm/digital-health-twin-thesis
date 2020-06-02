@@ -1,0 +1,25 @@
+body {
+    color: b;
+}
+
+.card {
+    background-color: rgb(255, 255, 255);
+    margin-bottom: 10%;
+}
+
+.card:hover {
+    box-shadow: 5px 10px 20px 1px black !important;
+    transform: scale(1.1)
+}
+
+.card-body {
+    padding: 1.6rem;
+}
+
+.card-img {
+    width: 80%;
+    margin-left: 10%;
+    display: block;
+    /* background-color: rgb(56, 114, 221); */
+}
+

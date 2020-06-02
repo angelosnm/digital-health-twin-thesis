@@ -1,0 +1,42 @@
+body {
+    font-family: Avant Garde, Avantgarde, Century Gothic, CenturyGothic, AppleGothic, sans-serif !important;
+    background-color: rgb(61, 61, 61) !important;
+}
+
+.nav-link {
+    color: rgb(255, 255, 255) !important;
+}
+
+.App {
+    text-align: center;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin-top: 6em;
+}
+
+.container {
+    margin-top: 5%;
+    text-align: center;
+}
+
+.chart {
+    display: flex;
+    justify-content: center;
+    width: 70%;
+}
+
+#patientsList {
+    padding: 5%;
+    font-size: 22px;
+    text-align: center;
+    display: inline-block;
+}
+
+a {
+    text-decoration: none;
+}
