@@ -8,6 +8,7 @@ import Navbar from './components/layout/navbar';
 import Home from './components/home';
 import Patients from './components/patients';
 import Patient from './components/patient';
+import Alarms from './components/alarms';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/" exact component={Home} />
           <Route path="/mypatients/" exact component={Patients} />
           <Route path="/mypatients/:patient" component={Patient} />
+          <Route path="/myalarms/" exact component={Alarms} />
         </Switch>
       </div>
     </Router >

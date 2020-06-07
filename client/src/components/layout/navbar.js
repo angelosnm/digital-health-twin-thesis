@@ -12,7 +12,7 @@ class navbar extends Component {
                     <Nav className="mr-auto">
                         <NavDropdown title="Dropdown" id="basic-nav-dropdown">
                             <NavDropdown.Item href="http://localhost:5000/user/authorize">Authorize a user with Fitbit</NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
+                            <NavDropdown.Item href="http://localhost:5000/user/heartrate">Fetch heartrate data of a user</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
                             <NavDropdown.Divider />
                             <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>

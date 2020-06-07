@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const mastodonPostSchema = new Schema({
+const mastodonPostAlarmSchema = new Schema({
 
     username: String,
 
     postData: {
         post_id: String,
-        code: String,
-        subject: String,
-        effective: String,
+        replied_post_id: String,
+        user: String,
+        date: String,
         issued: String,
         performer: String,
         value: Number,
@@ -23,6 +23,6 @@ const mastodonPostSchema = new Schema({
 
 });
 
-const mastodonPost = mongoose.model("mastodonPost", mastodonPostSchema);
+const mastodonPostAlarm = mongoose.model("mastodonPostAlarm", mastodonPostAlarmSchema);
 
-module.exports = mastodonPost;
+module.exports = mastodonPostAlarm;

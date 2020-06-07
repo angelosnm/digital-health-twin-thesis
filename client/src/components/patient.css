@@ -1,10 +1,14 @@
-.chart {
-    /* display: flex; */
-    /* justify-content: center; */
+#charts > * {
     width: 100%;
-    margin-bottom: 10%;
+    margin-bottom: 12%;
 }
 
 table {
     margin-bottom: 5% !important;
 }
+
+@media only screen and (max-width: 600px) {
+    table {
+      font-size: 12px;
+    }
+  }

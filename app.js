@@ -25,6 +25,7 @@ mongoose
   .catch(err => console.log(err));
 
 let mastodonPost = require('./models/mastodonPost.model');
+let mastodonPostAlarm = require('./models/mastodonPostAlarm.model');
 
 console.log("Digital Health Twin")
 
@@ -56,6 +57,57 @@ function formatDate(date) {
   return year + "-" + month + "-" + day;
 }
 
+
+function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue) {
+  const params = {
+    status: content
+  }
+
+  if (id) {
+    params.in_reply_to_id = id;
+  }
+
+  doctorMastodon.post('statuses', params, (error, data) => {
+    if (error) {
+      console.error(error);
+    }
+    else {
+      console.log(`ID:${data.id}and timestamp:${data.created_at} `);
+      console.log(data.content);
+
+      mastodonPostAlarmData = {
+
+        username: data.account.username,
+
+        postData: {
+          post_id: data.id,
+          replied_post_id: params.in_reply_to_id,
+          user: username,
+          date: moment().utc().format("MM/DD/YYYY"),
+          issued: moment().utc().format("HH:mm"),
+          performer: data.account.username,
+          value: measuredDataValue,
+          device: ' ',
+          component: {
+            code: loincCode,
+            value: measuredData
+          }
+        }
+      }
+
+
+      let newMastodonPostAlarm = new mastodonPostAlarm(mastodonPostAlarmData);
+      newMastodonPostAlarm.save((err) => {
+        if (err) {
+          res.status(500).json(err)
+        }
+        else {
+          console.log("Alarm post saved to DB")
+        }
+      })
+    }
+  })
+}
 
 // ROUTES
 
@@ -180,7 +232,8 @@ app.get("/user/callback", (req, res) => {
 
                   username: post.account.username,
 
-                  post: {
+                  postData: {
+                    post_id: post.id,
                     code: loincTable.calories.code,
                     subject: post.account.username,
                     effective: fetchedData.currentDate,
@@ -276,7 +329,8 @@ app.get('/user/heartrate', (req, res) => {
 
                   username: post.account.username,
 
-                  post: {
+                  postData: {
+                    post_id: post.id,
                     code: postDetails[Object.keys(postDetails)[j]].LoincID,
                     subject: post.account.username,
                     effective: moment().utc().format("MM/DD/YYYY"),
@@ -372,6 +426,93 @@ app.get('/mypatients/:patient', (req, res) => {
   });
 })
 
+app.get('/user/myalarms', (req, res) => {
+  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+    if (error) {
+      console.error(error);
+    }
+    else {
+      doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
+        if (error) {
+          console.error(error);
+        }
+        else {
+          const listener = doctorMastodon.stream(`streaming/user`)
+
+          listener.on('message', msg => {
+
+            if (msg.event === 'update') {
+              axios.get(process.env.DB_ENDPOINT_MASTODONPOSTS)
+                .then(function (response) {
+
+                  let userPosts = response.data.filter(content => content.username === msg.data.account.username)
+
+                  let userPostsDIAS = userPosts.filter(content => content.postData.component.value === "BP dias")
+                  let userPostsSYS = userPosts.filter(content => content.postData.component.value === "BP sys")
+                  let userPostsHeartrate = userPosts.filter(content => content.postData.component.value === "Heart rate")
+
+                  let upperDIASthreshold = 120
+                  let lowerDIASthreshold = 80
+
+                  let upperSYSthreshold = 120
+                  let lowerSYSthreshold = 80
+
+                  let upperHeartratethreshold = 100
+                  let lowerHeartratethreshold = 60
+
+                  let replyToot;
+
+                  for (let i = 0; i < userPostsDIAS.length; i++) {
+                    if (userPostsDIAS[i].postData.value.$numberInt <= lowerDIASthreshold || userPostsDIAS[i].postData.value.$numberInt >= upperDIASthreshold) {
+                      replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].postData.component.value + ': ' + userPostsDIAS[i].postData.value.$numberInt
+                      alarmToot(replyToot, userPostsDIAS[i].postData.id, userPostsDIAS[i].username, userPostsDIAS[i].postData.component.value, userPostsDIAS[i].postData.component.code, userPostsDIAS[i].postData.value.$numberInt)
+                    }
+                  }
+
+                  for (let i = 0; i < userPostsSYS.length; i++) {
+                    if (userPostsSYS[i].postData.value.$numberInt <= lowerSYSthreshold || userPostsSYS[i].postData.value.$numberInt >= upperSYSthreshold) {
+                      replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].postData.component.value + ': ' + userPostsSYS[i].postData.value.$numberInt
+                      alarmToot(replyToot, userPostsSYS[i].postData.id, userPostsSYS[i].postData.component.value, userPostsSYS[i].postData.component.code, userPostsSYS[i].postData.value.$numberInt)
+                    }
+                  }
+
+                  for (let i = 0; i < userPostsHeartrate.length; i++) {
+                    if (userPostsHeartrate[i].postData.value.$numberInt <= lowerHeartratethreshold || userPostsHeartrate[i].postData.value.$numberInt >= upperHeartratethreshold) {
+                      replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].postData.component.value + ': ' + userPostsHeartrate[i].postData.value.$numberInt
+                      alarmToot(replyToot, userPostsHeartrate[i].postData.id, userPostsHeartrate[i].postData.component.value, userPostsHeartrate[i].postData.component.code, userPostsHeartrate[i].postData.value.$numberInt)
+                    }
+                  }
+
+                })
+                .catch(function (error) {
+                  console.log(error);
+                })
+            }
+          })
+          listener.on('error', err => console.log(err))
+        }
+      });
+    }
+  });
+})
+
+app.get('/myalarms', (req, res) => {
+  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+    if (error) {
+      console.error(error);
+    }
+    else {
+      axios.get(process.env.DB_ENDPOINT_MASTODONPOSTSALARMS)
+        .then(function (response) {
+          console.log(response.data)
+          res.json(response.data)
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    }
+  });
+})
 
 const port = process.env.PORT || 5000;
 

@@ -5,7 +5,6 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { CSVExport } from 'react-bootstrap-table2-toolkit';
 import './patient.css';
-import { stringify } from 'qs';
 
 
 
@@ -13,11 +12,13 @@ function Patient({ match }) {
     useEffect(() => {
         fetchPatient();
         fetchFitbitFlexChart();
+        fetchHeartrateDataChart();
     }, []);
 
 
     const [patientData, setPatientData] = useState([]);
-    const [chartData, setChart] = useState([]);
+    const [fitbitFlexDatachartData, setChartFitbitFlex] = useState([]);
+    const [heartrateDatachartData, setChartheartrateData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const fetchPatient = async () => {
@@ -36,31 +37,46 @@ function Patient({ match }) {
 
         const patientData = await data.json();
 
-        let fitbitFlexData = patientData.filter(content => content.post.device === "Fitbit Flex")
-        
+        let fitbitFlexData = patientData.filter(content => content.postData.device === "Fitbit Flex")
+
         let indexStart = fitbitFlexData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
-        let chartData = fitbitFlexData.slice(indexStart, fitbitFlexData.length)
-        
-        console.log(chartData)
-        setChart(chartData);
+        let fitbitFlexDatachartData = fitbitFlexData.slice(indexStart, fitbitFlexData.length)
+
+        console.log(fitbitFlexDatachartData)
+        setChartFitbitFlex(fitbitFlexDatachartData);
     };
-    
-    const lineChart = (
+
+    const fetchHeartrateDataChart = async () => {
+        const data = await fetch(`/mypatients/${match.params.patient}`);
+
+        const patientData = await data.json();
+
+        let heartrateData = patientData.filter(content => content.postData.device === " ")
+
+        let indexStart = heartrateData.length - 20
+        indexStart = indexStart < 0 ? 0 : indexStart;
+        let heartrateDatachartData = heartrateData.slice(indexStart, heartrateData.length)
+
+        console.log(heartrateDatachartData)
+        setChartheartrateData(heartrateDatachartData);
+    };
+
+    const lineChartfitbitFlex = (
 
         patientData.length
             ? (
                 <Line data={{
-                    labels: chartData.map(content => content.post.issued).filter((items, index) => index % 2 === 0),
+                    labels: fitbitFlexDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: chartData.filter(content => content.post.component.value === "Calories burned").map(content => content.post.value.$numberInt),
+                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Calories burned").map(content => content.postData.value.$numberInt),
                         backgroundColor: 'rgb(83, 144, 186)',
                         borderColor: 'rgb(83, 144, 186)',
                         fill: false,
                         label: "Measuered Calories",
                         pointRadius: 7
                     }, {
-                        data: chartData.filter(content => content.post.component.value === "Steps").map(content => content.post.value.$numberInt),
+                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Steps").map(content => content.postData.value.$numberInt),
                         backgroundColor: 'rgb(191, 29, 31)',
                         borderColor: 'rgb(191, 29, 31)',
                         fill: false,
@@ -71,14 +87,47 @@ function Patient({ match }) {
                 />) : null
     )
 
+    const lineChartheartrateData = (
+
+        patientData.length
+            ? (
+                <Line data={{
+                    labels: heartrateDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP sys").map(content => content.postData.value.$numberInt),
+                        backgroundColor: 'rgb(83, 144, 186)',
+                        borderColor: 'rgb(83, 144, 186)',
+                        fill: false,
+                        label: "Systolic blood pressure",
+                        pointRadius: 7
+                    },
+                    {
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP dias").map(content => content.postData.value.$numberInt),
+                        backgroundColor: 'rgb(191, 29, 31)',
+                        borderColor: 'rgb(191, 29, 31)',
+                        fill: false,
+                        label: "Diastolic blood pressure",
+                        pointRadius: 7
+                    }, {
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "Heart rate").map(content => content.postData.value.$numberInt),
+                        backgroundColor: 'rgb(10%, 100%, 10%)',
+                        borderColor: 'rgb(10%, 100%, 10%)',
+                        fill: false,
+                        label: "Beats per minute",
+                        pointRadius: 7
+                    }]
+                }}
+                />) : null
+    )
+
 
     const columns = [
-        { dataField: "post.component.value", text: "Measured data", sort: true },
-        { dataField: "post.value.$numberInt", text: "Value", sort: true },
-        { dataField: "post.effective", text: "Date", sort: true },
-        { dataField: "post.issued", text: "Time", sort: true },
-        { dataField: "post.device", text: "Device", sort: true, },
-        { dataField: "post.component.code", text: "LOINC", sort: true, }
+        { dataField: "postData.component.value", text: "Measured data", sort: true },
+        { dataField: "postData.value.$numberInt", text: "Value", sort: true },
+        { dataField: "postData.effective", text: "Date", sort: true },
+        { dataField: "postData.issued", text: "Time", sort: true },
+        { dataField: "postData.device", text: "Device", sort: true, },
+        { dataField: "postData.component.code", text: "LOINC", sort: true, }
     ]
 
     const pageButtonRenderer = ({
@@ -149,7 +198,10 @@ function Patient({ match }) {
     return (
 
         <div className="patient">
-            <div className="chart">{lineChart}</div>
+            <div id="charts">
+                <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
+                <div className="chartHeartrateData">{lineChartheartrateData}</div>
+            </div>
             {loading ? (<BootstrapTable
                 classes="table table-dark table-striped table-bordered table-hover"
                 keyField="id"

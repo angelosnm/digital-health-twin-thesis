@@ -23,7 +23,7 @@ function Home() {
                 </Col>
                 <Col lg="4" xs="12">
                     <Card>
-                        <a className="overflow" href="/mypatients">
+                        <a className="overflow" href="/myalarms">
                             <Card.Img src={require('../images/alarm.png')} />
                         </a>
                         <Card.Body>
