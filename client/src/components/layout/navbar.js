@@ -15,7 +15,8 @@ class navbar extends Component {
                             <NavDropdown.Item href="http://localhost:5000/user/heartrate">Fetch heartrate data of a user</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
                             <NavDropdown.Divider />
-                            <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
+                            <NavDropdown.Item href="http://localhost:5000/user/myalarms">Enable alarming</NavDropdown.Item>
+                            
                         </NavDropdown>
                     </Nav>
 

@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 import Navbar from './components/layout/navbar';
+import Footer from './components/layout/footer/footer';
 import Home from './components/home';
 import Patients from './components/patients';
 import Patient from './components/patient';
@@ -14,21 +15,25 @@ import Alarms from './components/alarms';
 function App() {
   return (
 
-    <Router>
-      <div className="App">
-        <Navbar />
-      </div>
-      <div className="container">
-        <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/mypatients/" exact component={Patients} />
-          <Route path="/mypatients/:patient" component={Patient} />
-          <Route path="/myalarms/" exact component={Alarms} />
-        </Switch>
-      </div>
-    </Router >
+    <div>
+      <Router>
+        <div className="App">
+          <Navbar />
+        </div>
+        <div className="container">
+          <Switch>
+            <Route path="/" exact component={Home} />
+            <Route path="/mypatients/" exact component={Patients} />
+            <Route path="/mypatients/:patient" component={Patient} />
+            <Route path="/myalarms/" exact component={Alarms} />
+          </Switch>
+        </div>
+      </Router >
 
+      <Footer />
+    </div>
   );
+
 }
 
 export default App;

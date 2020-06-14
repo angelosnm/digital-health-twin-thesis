@@ -1,14 +1,4 @@
 #charts > * {
     width: 100%;
-    margin-bottom: 12%;
+    margin-bottom: 18%;
 }
-
-table {
-    margin-bottom: 5% !important;
-}
-
-@media only screen and (max-width: 600px) {
-    table {
-      font-size: 12px;
-    }
-  }

@@ -1,0 +1,29 @@
+.footer {
+    background-color: rgb(133, 132, 126);
+    text-align: center;
+    padding-bottom: 2%;
+}
+
+.footer-container {
+    padding-top: 2%;
+    margin-top: 18%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+}
+
+.footer-container>img {
+    width: 256px;
+    height: 256px;
+}
+
+@media only screen and (max-width: 600px) {
+    .footer-container>img {
+        width: 128px;
+        height: 128px;
+        margin-left: 37%;
+    }
+    .footer-container {
+        flex-direction: column;
+    }
+}

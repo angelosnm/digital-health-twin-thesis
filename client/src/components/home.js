@@ -38,10 +38,10 @@ function Home() {
                 <Col lg="4" xs="12">
                     <Card>
                         <a className="overflow" href="/mypatients">
-                            <Card.Img src={require('../images/patient.png')} />
+                            <Card.Img src="https://w7.pngwing.com/pngs/636/590/png-transparent-question-mark-computer-icons-question-mark-miscellaneous-text-logo.png" />
                         </a>
                         <Card.Body>
-                            <Card.Title>My patients</Card.Title>
+                            <Card.Title>?</Card.Title>
                             <Card.Text>
                                 Some quick example text to build on the card title and make up the bulk of
                                 the card's content.
