@@ -1,9 +1,13 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import * as ReactBootStrap from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import { Grid, Card, CardContent, CardMedia, Typography, TextField } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import Link from '@material-ui/core/Link'
+import SearchIcon from '@material-ui/icons/Search'
 import './patients.css';
 
 function Patients() {
@@ -15,6 +19,7 @@ function Patients() {
 
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchFilter, setSearchFilter] = useState([]);
 
     const fetchPatients = async () => {
         const data = await fetch('/mypatients');
@@ -26,46 +31,78 @@ function Patients() {
         setPatients(patients);
     };
 
-    const columns = [
-        { dataField: "username", text: "User", sort: true },
-        { dataField: "last_status_at", text: "Last posted", sort: true },
-        { dataField: "url", text: "Mastodon profile", sort: true },
-    ]
+    const useStyles = makeStyles({
+        container: {
+            paddingTop: "20px",
+            paddingLeft: "50px",
+            paddingRight: "50px"
+        },
+        cardContent: {
+            textAlign: "center"
+        },
+        cardMedia: {
 
-    const defaultSorted = [{
-        dataField: 'name',
-        order: 'desc'
-    }];
+        },
+        searchContainer: {
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "5%"
+        },
+        searchIcon: {
+            alignSelf: "flex-end",
+            margin: "5px"
+        }
+    })
 
-    const paginationOptions = {
-        paginationSize: 5,
-        pageStartIndex: 1,
-        withFirstAndLast: false,
-        hideSizePerPage: true, // Hide the sizePerPage dropdown always
-        hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
-        firstPageText: 'First',
-        prePageText: 'Back',
-        nextPageText: 'Next',
-        lastPageText: 'Last',
-        nextPageTitle: 'First page',
-        prePageTitle: 'Pre page',
-        firstPageTitle: 'Next page',
-        lastPageTitle: 'Last page',
-        disablePageTitle: true,
+    const getPatientCard = (patient) => {
+        return (
+            <Grid item xs={12} sm={4} key={patient.id}>
+                <Link underline="none" component={RouterLink} to={`/mypatients/${patient.username}`}>
+                    <Card>
+                        <CardMedia
+                            className={classes.cardMedia}
+
+                        />
+                        <img src={patient.avatar} style={{ width: "100%" }} />
+                        <CardContent className={classes.cardContent}>
+                            <Typography>
+                                {patient.username}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Link>
+            </Grid >
+        );
     };
+
+    const handleSearchChange = (e) => {
+        setSearchFilter(e.target.value);
+    }
+
+    const classes = useStyles();
 
     return (
         <div className="patients">
             <h2> My Patients </h2>
-            <ul style={{ listStyleType: "none" }} >
+            {/* <ul style={{ listStyleType: "none" }} >
                 <div className="flex-container">
                     {patients.map(patient =>
                         <Link to={`/mypatients/${patient.username}`}>
                             <li id="patientsList"> {patient.username} <img src={patient.avatar} width="128px" alt=""></img></li></Link>)}
                 </div>
-            </ul>
+            </ul> */}
 
-            
+            <div className={classes.searchContainer}>
+                <SearchIcon className={classes.searchIcon} />
+                <TextField className={classes.searchTextfield} label="Search user" onChange={handleSearchChange} variant="standard" />
+            </div>
+
+            <Grid container spacing={6} className={classes.container}>
+                {patients.map(patient =>
+                    patient.username.includes(searchFilter) &&
+                    getPatientCard(patient))}
+            </Grid>
+
         </div >
 
 

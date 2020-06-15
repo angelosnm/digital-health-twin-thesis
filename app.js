@@ -193,32 +193,33 @@ app.get("/user/callback", (req, res) => {
                 console.error(error);
               }
               else {
-                console.log(`ID: ${post["id"]} and timestamp: ${post.created_at}`);
+                console.log(`ID: ${post.id} and timestamp: ${post.created_at}`);
                 console.log(post.content);
 
 
-                mastodonPostData = {
+                mastodonPostDataSteps = {
 
-                  username: post.account.username,
+                  username: post.account.username,                  
 
-                  post: {
+                postData: {
+                  post_id: post.id,
+                  code: loincTable.steps.code,
+                  subject: post.account.username,
+                  effective: fetchedData.currentDate,
+                  issued: fetchedData.currentTime,
+                  perfomer: "Digital Health Twin",
+                  value: fetchedData.steps,
+                  device: loincTable.device,
+                  component: {
                     code: loincTable.steps.code,
-                    subject: post.account.username,
-                    effective: fetchedData.currentDate,
-                    issued: fetchedData.currentTime,
-                    perfomer: "Digital Health Twin",
-                    value: fetchedData.steps,
-                    device: loincTable.device,
-                    component: {
-                      code: loincTable.steps.code,
-                      value: loincTable.steps.name
-                    }
+                    value: loincTable.steps.name
                   }
                 }
+              }
 
 
 
-                let newMastodonPost = new mastodonPost(mastodonPostData);
+                let newMastodonPost = new mastodonPost(mastodonPostDataSteps);
                 newMastodonPost.save((err) => {
                   if (err) {
                     res.status(500).json(err)
@@ -228,7 +229,7 @@ app.get("/user/callback", (req, res) => {
                   }
                 })
 
-                mastodonPostData = {
+                mastodonPostDataCal = {
 
                   username: post.account.username,
 
@@ -248,7 +249,7 @@ app.get("/user/callback", (req, res) => {
                   }
                 }
 
-                newMastodonPost = new mastodonPost(mastodonPostData);
+                newMastodonPost = new mastodonPost(mastodonPostDataCal);
                 newMastodonPost.save((err) => {
                   if (err) {
                     res.status(500).json(err)
@@ -322,7 +323,7 @@ app.get('/user/heartrate', (req, res) => {
                 console.error(error);
               }
               else {
-                console.log(`ID: ${post["id"]} and timestamp: ${post.created_at}`);
+                console.log(`ID: ${post.id} and timestamp: ${post.created_at}`);
                 console.log(post.content);
 
                 mastodonPostData = {
