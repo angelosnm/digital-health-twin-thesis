@@ -5,7 +5,7 @@ import { Row, Col, Container, Card, Button } from 'react-bootstrap';
 
 function Home() {
     return (
-        <Container>
+        <div className="home-cards-container">
             <Row className="justify-content-md-center">
                 <Col lg="4" xs="12">
                     <Card>
@@ -50,7 +50,7 @@ function Home() {
                     </Card>
                 </Col>
             </Row>
-        </Container>
+        </div>
     )
 
 }

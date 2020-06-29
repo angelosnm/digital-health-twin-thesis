@@ -1,24 +1,35 @@
 require('dotenv').config();
 const mastodon = require("mastodon-api");
 const express = require("express");
-const route = require('express').Router();
-const app = express();
+const bodyParser = require('body-parser')
 const FitbitApiClient = require("fitbit-node");
 const schedule = require('node-schedule');
 const moment = require('moment');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const MongoClient = require('mongodb').MongoClient;
 const axios = require('axios').default;
 const path = require('path')
 const fs = require('fs');
 const readXlsxFile = require('read-excel-file/node');
+const session = require('express-session')
+const passport = require('passport')
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(cookieParser())
+
+
+const userRouter = require('./routes/userRoutes')
+app.use('/user', userRouter);
 
 const uri = process.env.DB_CONNECTION
-
 mongoose
   .connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
   .then(() => console.log('Database Connected!'))
@@ -115,13 +126,13 @@ app.get('/', (req, res) => {
   res.send("hi there")
 })
 
-app.get("/user/authorize", (req, res, ) => {
+app.get("/patient/authorize", (req, res,) => {
   // request access to the user's activity, heartrate, location, nutrion, profile, settings, sleep, social, and weight scopes
   res.redirect(client.getAuthorizeUrl('activity heartrate location nutrition profile settings sleep social weight', 'http://localhost:5000/user/callback'));
 });
 
 // handle the callback from the Fitbit authorization flow
-app.get("/user/callback", (req, res) => {
+app.get("/patient/callback", (req, res) => {
 
   let callbackCode = req.query.code
 
@@ -143,7 +154,7 @@ app.get("/user/callback", (req, res) => {
         userAvatar: data[0]["user"]["avatar150"]
       }
 
-      res.redirect('http://localhost:3000/')
+      // res.redirect('http://localhost:3000/')
       console.log('User authorized')
 
 
@@ -199,23 +210,23 @@ app.get("/user/callback", (req, res) => {
 
                 mastodonPostDataSteps = {
 
-                  username: post.account.username,                  
+                  username: post.account.username,
 
-                postData: {
-                  post_id: post.id,
-                  code: loincTable.steps.code,
-                  subject: post.account.username,
-                  effective: fetchedData.currentDate,
-                  issued: fetchedData.currentTime,
-                  perfomer: "Digital Health Twin",
-                  value: fetchedData.steps,
-                  device: loincTable.device,
-                  component: {
+                  postData: {
+                    post_id: post.id,
                     code: loincTable.steps.code,
-                    value: loincTable.steps.name
+                    subject: post.account.username,
+                    effective: fetchedData.currentDate,
+                    issued: fetchedData.currentTime,
+                    perfomer: "Digital Health Twin",
+                    value: fetchedData.steps,
+                    device: loincTable.device,
+                    component: {
+                      code: loincTable.steps.code,
+                      value: loincTable.steps.name
+                    }
                   }
                 }
-              }
 
 
 
@@ -268,7 +279,7 @@ app.get("/user/callback", (req, res) => {
   }).catch(err => { res.status(err.status).send(err) });
 });
 
-app.get('/user/heartrate', (req, res) => {
+app.get('/patient/heartrate', (req, res) => {
 
   const directoryPath = path.join(__dirname, '/');
 
@@ -366,6 +377,9 @@ app.get('/user/heartrate', (req, res) => {
   })
 })
 
+
+// DOCTOR ROUTES
+
 app.get('/mypatients', (req, res) => {
   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
     if (error) {
@@ -427,7 +441,7 @@ app.get('/mypatients/:patient', (req, res) => {
   });
 })
 
-app.get('/user/myalarms', (req, res) => {
+app.get('/myalarms', (req, res) => {
   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
     if (error) {
       console.error(error);
@@ -514,6 +528,7 @@ app.get('/myalarms', (req, res) => {
     }
   });
 })
+
 
 const port = process.env.PORT || 5000;
 

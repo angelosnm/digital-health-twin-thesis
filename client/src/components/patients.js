@@ -84,13 +84,6 @@ function Patients() {
     return (
         <div className="patients">
             <h2> My Patients </h2>
-            {/* <ul style={{ listStyleType: "none" }} >
-                <div className="flex-container">
-                    {patients.map(patient =>
-                        <Link to={`/mypatients/${patient.username}`}>
-                            <li id="patientsList"> {patient.username} <img src={patient.avatar} width="128px" alt=""></img></li></Link>)}
-                </div>
-            </ul> */}
 
             <div className={classes.searchContainer}>
                 <SearchIcon className={classes.searchIcon} />
