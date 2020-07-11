@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
+import Image from "react"
 import { Link } from 'react-router-dom';
 import AuthService from '../../Services/AuthService';
 import { AuthContext } from '../../Context/AuthContext';
+import { Redirect } from 'react-router-dom';
 import * as ReactBootstrap from 'react-bootstrap'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,13 +17,27 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import storage from 'local-storage-fallback'
 import * as Style from '@material-ui/core/';
+import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
+import BrightnessHigh from '@material-ui/icons/BrightnessHigh';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import HomeIcon from '@material-ui/icons/Home';
 
 
 
 
 const Navbar = props => {
-    const { isAuthenticated, user, setIsAuthenticated, setUser } = useContext(AuthContext);
+    const { isAuthenticated, setIsAuthenticated, user, setUser } = useContext(AuthContext);
 
+    const styles = {
+        navLinks: {
+            color: "white",
+            marginLeft: "15px",
+            marginRight: "15px"
+        }
+    }
+
+    // Account options
     const onClickLogoutHandler = () => {
         AuthService.logout().then(data => {
             if (data.logged_out) {
@@ -41,13 +57,16 @@ const Navbar = props => {
     const authenticatedNavBar = () => {
         return (
             <>
-                <Link className="btn btn-link nav-item nav-link justify-content-end" onClick={onClickLogoutHandler}>
+
+                <Link onClick={onClickLogoutHandler} style={styles.navLinks}>
                     <AccountCircle />
                 </Link>
             </>
         )
     }
 
+
+    // Toggle theme mode
     const GlobalStyle = createGlobalStyle`
   body {
     background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#e0e0e0'};
@@ -78,42 +97,29 @@ const Navbar = props => {
         setTheme(theme.mode === 'dark' ? { mode: 'light' } : { mode: 'dark' })
     }
 
-    const useStyles = makeStyles((theme) => ({
-        root: {
-            flexGrow: 1,
-        }
-    }));
 
-    const classes = useStyles();
+
+
     return (
-        // <nav className="navbar navbar-expand-md navbar-light bg-light">
-        //     <Link to="/home">
-        //         <div className="navbar-brand">NoobCoder</div>
-        //     </Link>
-        //     <div className="collapse navbar-collapse">
-        //         <ul className="navbar-nav mr-auto">
-        //             {!isAuthenticated ? unauthenticatedNavBar() : authenticatedNavBar()}
-        //         </ul>
-        //     </div>
-        // </nav>
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <div className={classes.root}>
+            <div classname="navbar">
                 <AppBar position="static">
-                    <Toolbar>
-                        <Link className="navbar-brand mx-auto" to="/home">
-                            <img src={require('../../images/heart-icon-navbar-brand.png')} style={{ width: "18%" }} ></img>
-                        </Link>
-
-                        <Style.Switch
-                            onChange={toggleTheme}
-                            color='default'
-                        />
-                        {!isAuthenticated ? unauthenticatedNavBar() : authenticatedNavBar()}
+                    <Toolbar >
+                        {isAuthenticated ? <Link className="btn btn-link nav-item nav-link" to="/home">
+                            <HomeIcon />
+                        </Link> : null}
+                        <Grid container
+                            direction="row"
+                            justify="flex-end"
+                        >
+                            {theme.mode === 'dark' ? <Link><BrightnessHigh onClick={toggleTheme} style={styles.navLinks} /></Link> : <Link><BrightnessMediumIcon onClick={toggleTheme} style={styles.navLinks} /></Link>}
+                            {!isAuthenticated ? unauthenticatedNavBar() : authenticatedNavBar()}
+                        </Grid>
                     </Toolbar>
                 </AppBar>
             </div >
-        </ThemeProvider>
+        </ThemeProvider >
     )
 }
 

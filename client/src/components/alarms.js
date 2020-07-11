@@ -27,7 +27,7 @@ function Alarms() {
     const [loading, setLoading] = useState(false);
 
     const fetchAlarms = async () => {
-        const data = await fetch('/myalarms');
+        const data = await fetch('/user/myalarms');
 
         const alarms = await data.json();
         setLoading(true)
@@ -35,16 +35,6 @@ function Alarms() {
         console.log(alarms);
         setAlarms(alarms);
     };
-
-    // const columns = [
-    //     { dataField: "postData.user", text: "User", sort: true },
-    //     { dataField: "postData.component.value", text: "Measured data", sort: true, },
-    //     { dataField: "postData.value.$numberInt", text: "Value", sort: true },
-    //     { dataField: "postData.date", text: "Date", sort: true },
-    //     { dataField: "postData.issued", text: "Time", sort: true },
-    //     { dataField: "postData.device", text: "Device", sort: true, },
-    //     { dataField: "postData.component.code", text: "LOINC", sort: true, }
-    // ]
 
     const columns = [
 
@@ -218,119 +208,11 @@ function Alarms() {
 
 
 
-    // const useStyles = makeStyles({
-    //     root: {
-    //         width: "auto",
-    //     },
-    //     container: {
-    //         maxHeight: "440px",
-    //     }
-    // });
 
-
-    // const classes = useStyles();
-    // const [page, setPage] = React.useState(0);
-    // const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-    // const handleChangePage = (event, newPage) => {
-    //     setPage(newPage);
-    // };
-
-    // const handleChangeRowsPerPage = (event) => {
-    //     setRowsPerPage(+event.target.value);
-    //     setPage(0);
-    // };
-
-    // const defaultSorted = [{
-    //     dataField: 'name',
-    //     order: 'desc'
-    // }];
-
-    // const paginationOptions = {
-    //     paginationSize: 5,
-    //     pageStartIndex: 1,
-    //     withFirstAndLast: false,
-    //     hideSizePerPage: true, // Hide the sizePerPage dropdown always
-    //     hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
-    //     firstPageText: 'First',
-    //     prePageText: 'Back',
-    //     nextPageText: 'Next',
-    //     lastPageText: 'Last',
-    //     nextPageTitle: 'First page',
-    //     prePageTitle: 'Pre page',
-    //     firstPageTitle: 'Next page',
-    //     lastPageTitle: 'Last page',
-    //     disablePageTitle: true,
-    // };
 
     return (
         <div className="alarms">
             <h2> My Alarms </h2>
-            {/* {loading ? (<BootstrapTable
-                classes="table table-dark table-striped table-bordered table-hover"
-                keyField="id"
-                data={alarms}
-                columns={columns}
-                defaultSorted={defaultSorted}
-                pagination={paginationFactory(paginationOptions)}
-
-            />) : (
-                    <ReactBootStrap.Spinner animation="border" />
-                )} */}
-
-            {/* {loading ? (
-                <Paper className={classes.root}>
-                    <TableContainer className={classes.container}>
-                        <Table stickyHeader aria-label="sticky table">
-                            <TableHead
-                            >
-                                <TableRow>
-                                    {columns.map((column) => (
-                                        <TableCell
-                                            key={column.id}
-                                        // align={column.align}
-                                        >
-                                            {column.label}
-                                            <TableSortLabel
-                                                direction='asc'
-                                            >
-
-
-                                            </TableSortLabel>
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                                    return (
-                                        <TableRow hover tabIndex={-1} key={row.code}>
-                                            {columns.map((column) => {
-                                                const value = row[column.id];
-                                                return (
-                                                    <TableCell key={column.id} align={column.align}>
-                                                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[10, 25, 100]}
-                        component="div"
-                        count={rows.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
-                    />
-                </Paper>) : (
-                    <ReactBootStrap.Spinner animation="border" />
-                )} */}
 
             <div className={classes.root}>
                 {loading ? (<Paper className={classes.paper}>

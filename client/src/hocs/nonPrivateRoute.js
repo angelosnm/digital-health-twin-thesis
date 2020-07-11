@@ -9,7 +9,7 @@ const NonPrivateRoute = ({ component: Component, ...rest }) => {
         <Route {...rest} render={props => {
             if (isAuthenticated)
                 return <Redirect to={{
-                    pathname: '/',
+                    pathname: '/home',
                     state: { from: props.location }
                 }} />
 

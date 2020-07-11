@@ -12,10 +12,20 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    password_confirmation: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         required: true
     },
+
+    mastodon_app_access_token: {
+        type: String,
+        required: true
+    },
+
     registration_date: {
         type: Date,
         default: Date.now

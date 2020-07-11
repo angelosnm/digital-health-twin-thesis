@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PrivateRoute from './hocs/privateRoute';
 import NonPrivateRoute from './hocs/nonPrivateRoute';
@@ -12,7 +12,7 @@ import Patient from './components/patient';
 import Alarms from './components/alarms';
 import Login from './components/auth/login';
 import Register from './components/auth/register';
-
+import Account from './components/auth/account';
 
 function App() {
 
@@ -23,10 +23,10 @@ function App() {
         <div className="App">
           <Navbar />
           <div className="container">
-
             <Switch>
-              <NonPrivateRoute path="/login" component={Login} />
+              <NonPrivateRoute exact path={["/", "/login"]} component={Login} />
               <NonPrivateRoute path="/register" component={Register} />
+              <PrivateRoute exact path="/user/account" component={Account} />
               <PrivateRoute path="/home" component={Home} />
               <PrivateRoute exact path="/mypatients/" component={Patients} />
               <PrivateRoute path="/mypatients/:patient" component={Patient} />

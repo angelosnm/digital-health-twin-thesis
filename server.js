@@ -26,8 +26,11 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser())
 
 
-const userRouter = require('./routes/userRoutes')
-app.use('/user', userRouter);
+const authRouter = require('./routes/authRoutes')
+app.use('/auth', authRouter);
+
+const doctorRouter = require('./routes/doctorRoutes')
+app.use('/user', doctorRouter);
 
 const uri = process.env.DB_CONNECTION
 mongoose
@@ -35,20 +38,26 @@ mongoose
   .then(() => console.log('Database Connected!'))
   .catch(err => console.log(err));
 
-let mastodonPost = require('./models/mastodonPost.model');
-let mastodonPostAlarm = require('./models/mastodonPostAlarm.model');
+const User = require('./models/user.model');
+const mastodonPost = require('./models/mastodonPost.model');
+const mastodonPostAlarm = require('./models/mastodonPostAlarm.model');
 
 console.log("Digital Health Twin")
+
+
+// Authentication using jwt - issueing access token
+const signToken = userID => {
+  return jwt.sign({
+    iss: "Digital Health Twin", // who issued the token
+    sub: userID //for who this jwt has been assigned
+  },
+    process.env.jwtSecret,
+    { expiresIn: 3600 });
+}
 
 // Fetching Mastodon instance API for a patient
 const patientMastodon = new mastodon({
   access_token: process.env.MASTODON_ACCESS_TOKEN,
-  timeout_ms: 60 * 1000,
-  api_url: process.env.MASTODON_INSTANCE,
-});
-
-const doctorMastodon = new mastodon({
-  access_token: process.env.MASTODON_ACCESS_TOKEN_DOC,
   timeout_ms: 60 * 1000,
   api_url: process.env.MASTODON_INSTANCE,
 });
@@ -69,75 +78,235 @@ function formatDate(date) {
 }
 
 
-function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue) {
-  const params = {
-    status: content
+// function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue) {
+//   const params = {
+//     status: content
+//   }
+
+//   if (id) {
+//     params.in_reply_to_id = id;
+//   }
+
+//   doctorMastodon.post('statuses', params, (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       console.log(`ID:${data.id}and timestamp:${data.created_at} `);
+//       console.log(data.content);
+
+//       mastodonPostAlarmData = {
+
+//         username: data.account.username,
+
+//         postData: {
+//           post_id: data.id,
+//           replied_post_id: params.in_reply_to_id,
+//           user: username,
+//           date: moment().utc().format("MM/DD/YYYY"),
+//           issued: moment().utc().format("HH:mm"),
+//           performer: data.account.username,
+//           value: measuredDataValue,
+//           device: ' ',
+//           component: {
+//             code: loincCode,
+//             value: measuredData
+//           }
+//         }
+//       }
+
+
+//       let newMastodonPostAlarm = new mastodonPostAlarm(mastodonPostAlarmData);
+//       newMastodonPostAlarm.save((err) => {
+//         if (err) {
+//           res.status(500).json(err)
+//         }
+//         else {
+//           console.log("Alarm post saved to DB")
+//         }
+//       })
+//     }
+//   })
+// }
+
+// ROUTES 
+
+app.post('/login', passport.authenticate('local', { session: false },), (req, res) => {
+  if (req.isAuthenticated()) {
+    const { _id, username, email, mastodon_app_access_token } = req.user;
+    const token = signToken(_id);
+    res.cookie('access_token', token, { httpOnly: true, sameSite: true });
+    res.status(200).json({ isAuthenticated: true, user_details: { username, email }, message: { msgBody: "Logged in", msgError: false }, access_token: token });
+
+    // if logged in successfully, get Mastodon access token and initiate app
+
+    doctorMastodon = new mastodon({
+      access_token: mastodon_app_access_token,
+      timeout_ms: 60 * 1000,
+      api_url: process.env.MASTODON_INSTANCE,
+    });
+
+    exports.doctorMastodon = doctorMastodon;
+
   }
-
-  if (id) {
-    params.in_reply_to_id = id;
+  else {
+    res.status(401).json({ isAuthenticated: false, message: { msgBody: "Wrong credentials", msgError: true } });
   }
+});
 
-  doctorMastodon.post('statuses', params, (error, data) => {
-    if (error) {
-      console.error(error);
-    }
-    else {
-      console.log(`ID:${data.id}and timestamp:${data.created_at} `);
-      console.log(data.content);
+// // Doctor routes //
 
-      mastodonPostAlarmData = {
+// // Fetching patients list, following users from Mastodon
+// app.get('/user/mypatients', (req, res) => {
+//   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       doctorMastodon.get('accounts/' + data.id + '/following', (error, data) => {
+//         if (error) {
+//           console.error(error);
+//         }
+//         else {
+//           res.json(data)
+//           console.log(data)
+//         }
+//       });
+//     }
+//   });
+// })
 
-        username: data.account.username,
+// // Fetching a patient and his/her data
 
-        postData: {
-          post_id: data.id,
-          replied_post_id: params.in_reply_to_id,
-          user: username,
-          date: moment().utc().format("MM/DD/YYYY"),
-          issued: moment().utc().format("HH:mm"),
-          performer: data.account.username,
-          value: measuredDataValue,
-          device: ' ',
-          component: {
-            code: loincCode,
-            value: measuredData
-          }
-        }
-      }
+// app.get('/user/mypatients/:patient', (req, res) => {
+
+//   let patient = req.params.patient
+
+//   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
+//         if (error) {
+//           console.error(error);
+//         }
+//         else {
+//           for (let i = 0; i < data.map(user => user.username).length; i++) {
+//             if (patient === data.map(user => user.username)[i]) {
+//               doctorMastodon.get('accounts/' + data.map(user => user.id)[i] + '/statuses', (error, data) => {
+//                 if (error) {
+//                   console.error(error);
+//                   res.send("user does not exist")
+//                 }
+//                 else {
+//                   axios.get(process.env.DB_ENDPOINT_MASTODONPOSTS)
+//                     .then(function (response) {
+//                       if (patient === response.data.map(posts => posts.username)[0]) {
+//                         console.log(response.data)
+//                         res.json(response.data)
+//                       }
+//                     })
+//                     .catch(function (error) {
+//                       console.log(error);
+//                     })
+//                 }
+//               });
+//             }
+//           }
+//         }
+//       });
+//     }
+//   });
+// })
 
 
-      let newMastodonPostAlarm = new mastodonPostAlarm(mastodonPostAlarmData);
-      newMastodonPostAlarm.save((err) => {
-        if (err) {
-          res.status(500).json(err)
-        }
-        else {
-          console.log("Alarm post saved to DB")
-        }
-      })
-    }
-  })
-}
+// // Fetching alarms
 
-// ROUTES
+// app.get('/user/myalarms', (req, res) => {
+//   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
+//         if (error) {
+//           console.error(error);
+//         }
+//         else {
+//           const listener = doctorMastodon.stream(`streaming/user`)
 
-app.get('/', (req, res) => {
-  res.send("hi there")
-})
+//           listener.on('message', msg => {
 
-app.get("/patient/authorize", (req, res,) => {
+//             if (msg.event === 'update') {
+//               axios.get(process.env.DB_ENDPOINT_MASTODONPOSTS)
+//                 .then(function (response) {
+
+//                   let userPosts = response.data.filter(content => content.username === msg.data.account.username)
+
+//                   let userPostsDIAS = userPosts.filter(content => content.postData.component.value === "BP dias")
+//                   let userPostsSYS = userPosts.filter(content => content.postData.component.value === "BP sys")
+//                   let userPostsHeartrate = userPosts.filter(content => content.postData.component.value === "Heart rate")
+
+//                   let upperDIASthreshold = 120
+//                   let lowerDIASthreshold = 80
+
+//                   let upperSYSthreshold = 120
+//                   let lowerSYSthreshold = 80
+
+//                   let upperHeartratethreshold = 100
+//                   let lowerHeartratethreshold = 60
+
+//                   let replyToot;
+
+//                   for (let i = 0; i < userPostsDIAS.length; i++) {
+//                     if (userPostsDIAS[i].postData.value.$numberInt <= lowerDIASthreshold || userPostsDIAS[i].postData.value.$numberInt >= upperDIASthreshold) {
+//                       replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].postData.component.value + ': ' + userPostsDIAS[i].postData.value.$numberInt
+//                       alarmToot(replyToot, userPostsDIAS[i].postData.id, userPostsDIAS[i].username, userPostsDIAS[i].postData.component.value, userPostsDIAS[i].postData.component.code, userPostsDIAS[i].postData.value.$numberInt)
+//                     }
+//                   }
+
+//                   for (let i = 0; i < userPostsSYS.length; i++) {
+//                     if (userPostsSYS[i].postData.value.$numberInt <= lowerSYSthreshold || userPostsSYS[i].postData.value.$numberInt >= upperSYSthreshold) {
+//                       replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].postData.component.value + ': ' + userPostsSYS[i].postData.value.$numberInt
+//                       alarmToot(replyToot, userPostsSYS[i].postData.id, userPostsSYS[i].username, userPostsSYS[i].postData.component.value, userPostsSYS[i].postData.component.code, userPostsSYS[i].postData.value.$numberInt)
+//                     }
+//                   }
+
+//                   for (let i = 0; i < userPostsHeartrate.length; i++) {
+//                     if (userPostsHeartrate[i].postData.value.$numberInt <= lowerHeartratethreshold || userPostsHeartrate[i].postData.value.$numberInt >= upperHeartratethreshold) {
+//                       replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].postData.component.value + ': ' + userPostsHeartrate[i].postData.value.$numberInt
+//                       alarmToot(replyToot, userPostsHeartrate[i].postData.id, userPostsHeartrate[i].username, userPostsHeartrate[i].postData.component.value, userPostsHeartrate[i].postData.component.code, userPostsHeartrate[i].postData.value.$numberInt)
+//                     }
+//                   }
+
+//                 })
+//                 .catch(function (error) {
+//                   console.log(error);
+//                 })
+//             }
+//           })
+//           listener.on('error', err => console.log(err))
+//         }
+//       });
+//     }
+//   });
+// })
+
+// PATIENT ROUTES
+
+app.get("/patient/fitbit_auth", (req, res,) => {
   // request access to the user's activity, heartrate, location, nutrion, profile, settings, sleep, social, and weight scopes
-  res.redirect(client.getAuthorizeUrl('activity heartrate location nutrition profile settings sleep social weight', 'http://localhost:5000/user/callback'));
+  res.redirect(client.getAuthorizeUrl('activity heartrate location nutrition profile settings sleep social weight', 'http://localhost:5000/patient/fitbit_cb'));
 });
 
 // handle the callback from the Fitbit authorization flow
-app.get("/patient/callback", (req, res) => {
+app.get("/patient/fitbit_cb", (req, res) => {
 
   let callbackCode = req.query.code
 
   // exchange the authorization code we just received for an access token
-  client.getAccessToken(callbackCode, 'http://localhost:5000/user/callback').then(auth => {
+  client.getAccessToken(callbackCode, 'http://localhost:5000/patient/fitbit_cb').then(auth => {
 
     let accessToken = auth.access_token
     let refreshToken = auth.refresh_token
@@ -154,7 +323,6 @@ app.get("/patient/callback", (req, res) => {
         userAvatar: data[0]["user"]["avatar150"]
       }
 
-      // res.redirect('http://localhost:3000/')
       console.log('User authorized')
 
 
@@ -378,156 +546,40 @@ app.get('/patient/heartrate', (req, res) => {
 })
 
 
-// DOCTOR ROUTES
 
-app.get('/mypatients', (req, res) => {
-  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
-    if (error) {
-      console.error(error);
-    }
-    else {
-      doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
-        if (error) {
-          console.error(error);
-        }
-        else {
-          res.json(data)
-          console.log(data)
-        }
-      });
-    }
-  });
-})
 
-app.get('/mypatients/:patient', (req, res) => {
+// app.get('/myalarms', (req, res) => {
+//   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       axios.get(process.env.DB_ENDPOINT_MASTODONPOSTSALARMS)
+//         .then(function (response) {
+//           console.log(response.data.map(data => data.postData.value))
+//           res.json(response.data)
+//         })
+//         .catch(function (error) {
+//           console.log(error);
+//         })
+//     }
+//   });
+// })
 
-  let patient = req.params["patient"]
 
-  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
-    if (error) {
-      console.error(error);
-    }
-    else {
-      doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
-        if (error) {
-          console.error(error);
-        }
-        else {
-          for (let i = 0; i < data.map(user => user.username).length; i++) {
-            if (patient === data.map(user => user.username)[i]) {
-              doctorMastodon.get('accounts/' + data.map(user => user.id)[i] + '/statuses', (error, data) => {
-                if (error) {
-                  console.error(error);
-                  res.send("user does not exist")
-                }
-                else {
-                  axios.get(process.env.DB_ENDPOINT_MASTODONPOSTS)
-                    .then(function (response) {
-                      if (patient === response.data.map(posts => posts.username)[0]) {
-                        console.log(response.data)
-                        res.json(response.data)
-                      }
-                    })
-                    .catch(function (error) {
-                      console.log(error);
-                    })
-                }
-              });
-            }
-          }
-        }
-      });
-    }
-  });
-})
 
-app.get('/myalarms', (req, res) => {
-  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
-    if (error) {
-      console.error(error);
-    }
-    else {
-      doctorMastodon.get('accounts/' + data["id"] + '/following', (error, data) => {
-        if (error) {
-          console.error(error);
-        }
-        else {
-          const listener = doctorMastodon.stream(`streaming/user`)
 
-          listener.on('message', msg => {
-
-            if (msg.event === 'update') {
-              axios.get(process.env.DB_ENDPOINT_MASTODONPOSTS)
-                .then(function (response) {
-
-                  let userPosts = response.data.filter(content => content.username === msg.data.account.username)
-
-                  let userPostsDIAS = userPosts.filter(content => content.postData.component.value === "BP dias")
-                  let userPostsSYS = userPosts.filter(content => content.postData.component.value === "BP sys")
-                  let userPostsHeartrate = userPosts.filter(content => content.postData.component.value === "Heart rate")
-
-                  let upperDIASthreshold = 120
-                  let lowerDIASthreshold = 80
-
-                  let upperSYSthreshold = 120
-                  let lowerSYSthreshold = 80
-
-                  let upperHeartratethreshold = 100
-                  let lowerHeartratethreshold = 60
-
-                  let replyToot;
-
-                  for (let i = 0; i < userPostsDIAS.length; i++) {
-                    if (userPostsDIAS[i].postData.value.$numberInt <= lowerDIASthreshold || userPostsDIAS[i].postData.value.$numberInt >= upperDIASthreshold) {
-                      replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].postData.component.value + ': ' + userPostsDIAS[i].postData.value.$numberInt
-                      alarmToot(replyToot, userPostsDIAS[i].postData.id, userPostsDIAS[i].username, userPostsDIAS[i].postData.component.value, userPostsDIAS[i].postData.component.code, userPostsDIAS[i].postData.value.$numberInt)
-                    }
-                  }
-
-                  for (let i = 0; i < userPostsSYS.length; i++) {
-                    if (userPostsSYS[i].postData.value.$numberInt <= lowerSYSthreshold || userPostsSYS[i].postData.value.$numberInt >= upperSYSthreshold) {
-                      replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].postData.component.value + ': ' + userPostsSYS[i].postData.value.$numberInt
-                      alarmToot(replyToot, userPostsSYS[i].postData.id, userPostsSYS[i].postData.component.value, userPostsSYS[i].postData.component.code, userPostsSYS[i].postData.value.$numberInt)
-                    }
-                  }
-
-                  for (let i = 0; i < userPostsHeartrate.length; i++) {
-                    if (userPostsHeartrate[i].postData.value.$numberInt <= lowerHeartratethreshold || userPostsHeartrate[i].postData.value.$numberInt >= upperHeartratethreshold) {
-                      replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].postData.component.value + ': ' + userPostsHeartrate[i].postData.value.$numberInt
-                      alarmToot(replyToot, userPostsHeartrate[i].postData.id, userPostsHeartrate[i].postData.component.value, userPostsHeartrate[i].postData.component.code, userPostsHeartrate[i].postData.value.$numberInt)
-                    }
-                  }
-
-                })
-                .catch(function (error) {
-                  console.log(error);
-                })
-            }
-          })
-          listener.on('error', err => console.log(err))
-        }
-      });
-    }
-  });
-})
-
-app.get('/myalarms', (req, res) => {
-  doctorMastodon.get('accounts/verify_credentials', (error, data) => {
-    if (error) {
-      console.error(error);
-    }
-    else {
-      axios.get(process.env.DB_ENDPOINT_MASTODONPOSTSALARMS)
-        .then(function (response) {
-          console.log(response.data)
-          res.json(response.data)
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-    }
-  });
-})
+// Profile route
+// app.get('/user/account', (req, res) => {
+//   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
+//     if (error) {
+//       console.error(error);
+//     }
+//     else {
+//       res.json(data)
+//     }
+//   });
+// })
 
 
 const port = process.env.PORT || 5000;

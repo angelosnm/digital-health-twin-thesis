@@ -5,9 +5,11 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
 
 const Register = props => {
-    const [user, setUser] = useState({ username: "", password: "", email: "" });
+    const [user, setUser] = useState({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "" });
     const [message, setMessage] = useState(null);
     let timerID = useRef(null);
 
@@ -22,7 +24,7 @@ const Register = props => {
     }
 
     const resetForm = () => {
-        setUser({ username: "", password: "", email: "" });
+        setUser({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "" });
     }
 
     const onSubmit = e => {
@@ -88,10 +90,30 @@ const Register = props => {
                         variant="outlined"
                         margin="normal"
                         fullWidth
+                        name="password_confirmation"
+                        label="Password Confirmation"
+                        type="password"
+                        id="password_confirmation"
+                    />
+                    <TextField
+                        onChange={onChange}
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
                         name="email"
                         label="Email"
                         type="email"
                         id="email"
+                    />
+                    <TextField
+                        onChange={onChange}
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        name="mastodon_app_access_token"
+                        label="Mastodon Access Token"
+                        type="password"
+                        id="mastodon_app_access_token"
                     />
                     <Button
                         type="submit"
@@ -102,6 +124,13 @@ const Register = props => {
                     >
                         Register
                     </Button>
+                    <Grid container>
+                        <Grid item xs>
+                            <Link href="/login" variant="body2">
+                                {"Already have an account? Sign in!"}
+                            </Link>
+                        </Grid>
+                    </Grid>
                 </form>
                 {message ? <Message message={message} /> : null}
             </div>

@@ -55,7 +55,7 @@ const Login = props => {
 
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <form onSubmit={onSubmit} className={classes.form} noValidate>
+                <form onSubmit={onSubmit} className={classes.form} >
                     <TextField
                         onChange={onChange}
                         variant="outlined"
@@ -91,13 +91,8 @@ const Login = props => {
                     </Button>
                     <Grid container>
                         <Grid item xs>
-                            <Link href="#" variant="body2">
-                                Forgot password?
-                           </Link>
-                        </Grid>
-                        <Grid item>
                             <Link href="/register" variant="body2">
-                                {"Don't have an account? Sign Up"}
+                                {"Don't have an account? Sign Up!"}
                             </Link>
                         </Grid>
                     </Grid>
