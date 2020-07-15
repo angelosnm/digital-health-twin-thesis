@@ -26,6 +26,9 @@ app.use(cookieParser())
 
 const mastodonPostAlarm = require('../models/mastodonPostAlarm.model');
 
+let serverData = require('../server');
+doctorMastodon = serverData.doctorMastodon
+
 function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue) {
   const params = {
     status: content
@@ -79,8 +82,7 @@ function alarmToot(content, id, username, measuredData, loincCode, measuredDataV
 
 // Doctor routes //
 
-let serverData = require('../server');
-doctorMastodon = serverData.doctorMastodon
+
 
 // Fetching patients list, following users from Mastodon
 doctorRouter.get('/mypatients', (req, res) => {

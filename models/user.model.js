@@ -26,6 +26,12 @@ const userSchema = new Schema({
         required: true
     },
 
+    role : {
+        type: String,
+        enum: ["doctor", "patient"],
+        required: true
+    },
+
     registration_date: {
         type: Date,
         default: Date.now

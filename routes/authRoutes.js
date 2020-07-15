@@ -7,7 +7,7 @@ const User = require('../models/user.model');
 
 
 userRouter.post('/register', (req, res) => {
-    const { username, password, password_confirmation, email, mastodon_app_access_token } = req.body;
+    const { username, password, password_confirmation, email, mastodon_app_access_token, role } = req.body;
     User.findOne({ username }, (err, user) => {
         if (err) {
             res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
@@ -40,7 +40,7 @@ userRouter.post('/register', (req, res) => {
         }
 
 
-        const newUser = new User({ username, password, password_confirmation, email, mastodon_app_access_token });
+        const newUser = new User({ username, password, password_confirmation, email, mastodon_app_access_token, role });
         newUser.save(err => {
             if (err)
                 res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
@@ -51,15 +51,15 @@ userRouter.post('/register', (req, res) => {
 });
 
 userRouter.get('/logout', passport.authenticate('jwt', { session: false }), (req, res) => {
-    const { username, email } = req.user;
+    const { username, email, role } = req.user;
     res.clearCookie('access_token');
-    res.json({ user_details: { username, email }, logged_out: true });
+    res.json({ user: { username, email, role }, logged_out: true });
 });
 
 
 userRouter.get('/authenticated', passport.authenticate('jwt', { session: false }), (req, res) => {
-    const { username, email } = req.user;
-    res.status(200).json({ user_details: { username, email }, isAuthenticated: true });
+    const { username, email, role } = req.user;
+    res.status(200).json({ user: { username, email, role }, isAuthenticated: true });
 });
 
 module.exports = userRouter;

@@ -26,11 +26,12 @@ function App() {
             <Switch>
               <NonPrivateRoute exact path={["/", "/login"]} component={Login} />
               <NonPrivateRoute path="/register" component={Register} />
-              <PrivateRoute exact path="/user/account" component={Account} />
-              <PrivateRoute path="/home" component={Home} />
-              <PrivateRoute exact path="/mypatients/" component={Patients} />
-              <PrivateRoute path="/mypatients/:patient" component={Patient} />
-              <PrivateRoute exact path="/myalarms/" component={Alarms} />
+
+              <PrivateRoute exact path="/user/account" roles={["doctor", "patient"]} component={Account} />
+              <PrivateRoute path="/home" roles={["doctor", "patient"]} component={Home} />
+              <PrivateRoute exact path="/mypatients/" roles={["doctor"]} component={Patients} />
+              <PrivateRoute path="/mypatients/:patient" roles={["doctor"]} component={Patient} />
+              <PrivateRoute exact path="/myalarms/" roles={["doctor"]} component={Alarms} />
             </Switch>
           </div>
         </div>

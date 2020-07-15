@@ -23,10 +23,11 @@ const Login = props => {
     const onSubmit = e => {
         e.preventDefault();
         AuthService.login(user).then(data => {
-            const { isAuthenticated, user_details, message } = data;
+            const { isAuthenticated, user, message } = data;
             console.log(message)
+            console.log(user) //prepei na paiksw me to user.role
             if (isAuthenticated) {
-                authContext.setUser(user_details);
+                authContext.setUser(user);
                 authContext.setIsAuthenticated(isAuthenticated);
                 props.history.push('/home');
             }

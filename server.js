@@ -133,10 +133,10 @@ function formatDate(date) {
 
 app.post('/login', passport.authenticate('local', { session: false },), (req, res) => {
   if (req.isAuthenticated()) {
-    const { _id, username, email, mastodon_app_access_token } = req.user;
+    const { _id, username, email, mastodon_app_access_token, role } = req.user;
     const token = signToken(_id);
     res.cookie('access_token', token, { httpOnly: true, sameSite: true });
-    res.status(200).json({ isAuthenticated: true, user_details: { username, email }, message: { msgBody: "Logged in", msgError: false }, access_token: token });
+    res.status(200).json({ isAuthenticated: true, user: { username, email, role }, message: { msgBody: "Logged in", msgError: false }, access_token: token });
 
     // if logged in successfully, get Mastodon access token and initiate app
 
