@@ -1,10 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
-import Image from "react"
 import { Link } from 'react-router-dom';
 import AuthService from '../../Services/AuthService';
 import { AuthContext } from '../../Context/AuthContext';
 import { Redirect } from 'react-router-dom';
-import * as ReactBootstrap from 'react-bootstrap'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
@@ -70,14 +68,12 @@ const Navbar = props => {
     const GlobalStyle = createGlobalStyle`
   body {
     background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#e0e0e0'};
+    
+  }
+  .App {
+    color: ${props => props.theme.mode === 'dark' ? 'rgb(173 173 173)' : 'rgb(61,61,61)'}; 
   }
   `;
-
-    function getInitialTheme() {
-        const savedTheme = storage.getItem('theme')
-        return savedTheme ? JSON.parse(savedTheme) : { mode: 'light' }
-    }
-
 
     function getInitialTheme() {
         const savedTheme = storage.getItem('theme')
@@ -106,9 +102,21 @@ const Navbar = props => {
             <div classname="navbar">
                 <AppBar position="static">
                     <Toolbar >
-                        {isAuthenticated ? <Link className="btn btn-link nav-item nav-link" to="/home">
-                            <HomeIcon />
-                        </Link> : null}
+
+                        {isAuthenticated && user.role === "doctor" ?
+                            <Link
+                                className="btn btn-link nav-item nav-link"
+                                to="/doctor">
+                                <HomeIcon />
+                            </Link> : null}
+
+                        {isAuthenticated && user.role === "patient" ?
+                            <Link
+                                className="btn btn-link nav-item nav-link"
+                                to="/patient">
+                                <HomeIcon />
+                            </Link> : null}
+
                         <Grid container
                             direction="row"
                             justify="flex-end"

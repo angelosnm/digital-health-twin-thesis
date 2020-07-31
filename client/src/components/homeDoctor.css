@@ -4,8 +4,7 @@
 }
 
 .home-cards-container > * .card:hover {
-    box-shadow: 5px 10px 20px 1px black !important;
-    transform: scale(1.1)
+    transform: scale(1.02)
 }
 
 .home-cards-container > * .card-body {

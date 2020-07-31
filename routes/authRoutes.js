@@ -1,13 +1,26 @@
 const express = require('express')
-const userRouter = express.Router()
+const authRouter = express.Router()
 const passport = require('passport')
 const passportConfig = require('../passport')
+const jwt = require('jsonwebtoken')
+const mastodon = require("mastodon-api");
 
 const User = require('../models/user.model');
 
+// Authentication using jwt - issueing access token
+const signToken = userID => {
+    return jwt.sign({
+        iss: "Digital Health Twin", // who issued the token
+        sub: userID //for who this jwt has been assigned
+    },
+        process.env.jwtSecret,
+        { expiresIn: 3600 });
+}
 
-userRouter.post('/register', (req, res) => {
+
+authRouter.post('/register', (req, res) => {
     const { username, password, password_confirmation, email, mastodon_app_access_token, role } = req.body;
+    console.log(req.body)
     User.findOne({ username }, (err, user) => {
         if (err) {
             res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
@@ -50,16 +63,49 @@ userRouter.post('/register', (req, res) => {
     });
 });
 
-userRouter.get('/logout', passport.authenticate('jwt', { session: false }), (req, res) => {
+authRouter.post('/login', passport.authenticate('local', { session: false },), (req, res) => {
+    if (req.isAuthenticated()) {
+        const { _id, username, email, mastodon_app_access_token, role } = req.user;
+        const token = signToken(_id);
+        res.cookie('access_token', token, { httpOnly: true, sameSite: true });
+        res.status(200).json({ isAuthenticated: true, user: { username, email, role }, message: { msgBody: "Logged in", msgError: false }, access_token: token });
+
+        // if logged in successfully, get Mastodon access token and initiate app
+
+        if (role === "doctor") {
+            doctorMastodon = new mastodon({
+                access_token: mastodon_app_access_token,
+                timeout_ms: 60 * 1000,
+                api_url: process.env.MASTODON_INSTANCE,
+            });
+
+            exports.doctorMastodon = doctorMastodon;
+        }
+        if (role === "patient") {
+            patientMastodon = new mastodon({
+                access_token: mastodon_app_access_token,
+                timeout_ms: 60 * 1000,
+                api_url: process.env.MASTODON_INSTANCE,
+            });
+
+            exports.patientMastodon = patientMastodon;
+        }
+    }
+    else {
+        res.status(401).json({ isAuthenticated: false, message: { msgBody: "Wrong credentials", msgError: true } });
+    }
+});
+
+authRouter.get('/logout', passport.authenticate('jwt', { session: false }), (req, res) => {
     const { username, email, role } = req.user;
     res.clearCookie('access_token');
     res.json({ user: { username, email, role }, logged_out: true });
 });
 
 
-userRouter.get('/authenticated', passport.authenticate('jwt', { session: false }), (req, res) => {
+authRouter.get('/authenticated', passport.authenticate('jwt', { session: false }), (req, res) => {
     const { username, email, role } = req.user;
     res.status(200).json({ user: { username, email, role }, isAuthenticated: true });
 });
 
-module.exports = userRouter;
+module.exports = authRouter;

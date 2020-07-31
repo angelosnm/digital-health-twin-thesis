@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import * as ReactBootStrap from 'react-bootstrap';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Grid, Card, CardHeader, CardContent, CardMedia, Typography, TextField } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core/styles'
 import Link from '@material-ui/core/Link'
 import SearchIcon from '@material-ui/icons/Search'
+import * as ReactBootStrap from 'react-bootstrap';
 import './patients.css';
 
 function Patients() {
@@ -28,7 +26,6 @@ function Patients() {
         const patients = await data.json();
         setLoading(true)
 
-        console.log(patients.map(date => date.last_status_at));
         setPatients(patients);
     };
 
@@ -123,17 +120,21 @@ function Patients() {
     return (
         <div className="patients">
             <h2> My Patients </h2>
+            {loading ? (
+                <div>
+                    <div className={classes.searchContainer}>
+                        <SearchIcon className={classes.searchIcon} />
+                        <TextField className={classes.searchTextfield} label="Search user" onChange={handleSearchChange} variant="standard" />
+                    </div>
 
-            <div className={classes.searchContainer}>
-                <SearchIcon className={classes.searchIcon} />
-                <TextField className={classes.searchTextfield} label="Search user" onChange={handleSearchChange} variant="standard" />
-            </div>
-
-            <Grid container spacing={6} className={classes.container}>
-                {patients.map(patient =>
-                    patient.username.includes(searchFilter) &&
-                    getPatientCard(patient))}
-            </Grid>
+                    <Grid container spacing={6} className={classes.container}>
+                        {patients.map(patient =>
+                            patient.username.includes(searchFilter) &&
+                            getPatientCard(patient))}
+                    </Grid>
+                </div>) : (
+                    <ReactBootStrap.Spinner animation="border" />
+                )}
 
         </div >
 

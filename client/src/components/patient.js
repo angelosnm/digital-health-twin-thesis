@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from "prop-types";
-import { Line } from 'react-chartjs-2';
-import * as ReactBootStrap from 'react-bootstrap';
+import { Line, Bar } from 'react-chartjs-2';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -12,11 +11,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
-
+import { Typography } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 import './patient.css';
 
 
@@ -40,9 +36,9 @@ function Patient({ match }) {
         const patientData = await data.json();
         setLoading(true)
 
-        console.log(patientData.map(content => content.postData.issued))
         setPatientData(patientData);
 
+        console.log(patientData.map(content => content.postData.effective)[patientData.length - 1])
     };
 
     const fetchFitbitFlexChart = async () => {
@@ -79,17 +75,17 @@ function Patient({ match }) {
 
         patientData.length
             ? (
-                <Line data={{
+                < Line data={{
                     labels: fitbitFlexDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Calories burned").map(content => content.postData.value.$numberInt),
+                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Calories burned").map(content => content.postData.value),
                         backgroundColor: 'rgb(83, 144, 186)',
                         borderColor: 'rgb(83, 144, 186)',
                         fill: false,
                         label: "Measuered Calories",
                         pointRadius: 7
                     }, {
-                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Steps").map(content => content.postData.value.$numberInt),
+                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Steps").map(content => content.postData.value),
                         backgroundColor: 'rgb(191, 29, 31)',
                         borderColor: 'rgb(191, 29, 31)',
                         fill: false,
@@ -100,14 +96,14 @@ function Patient({ match }) {
                 />) : null
     )
 
-    const lineChartheartrateData = (
+    const lineChartBloodPressureData = (
 
         patientData.length
             ? (
-                <Line data={{
+                <Bar data={{
                     labels: heartrateDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP sys").map(content => content.postData.value.$numberInt),
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP sys").map(content => content.postData.value),
                         backgroundColor: 'rgb(83, 144, 186)',
                         borderColor: 'rgb(83, 144, 186)',
                         fill: false,
@@ -115,22 +111,35 @@ function Patient({ match }) {
                         pointRadius: 7
                     },
                     {
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP dias").map(content => content.postData.value.$numberInt),
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP dias").map(content => content.postData.value),
                         backgroundColor: 'rgb(191, 29, 31)',
                         borderColor: 'rgb(191, 29, 31)',
                         fill: false,
                         label: "Diastolic blood pressure",
                         pointRadius: 7
-                    }, {
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "Heart rate").map(content => content.postData.value.$numberInt),
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartHeartrateData = (
+
+        patientData.length
+            ? (
+                <Line data={{
+                    labels: heartrateDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: heartrateDatachartData.filter(content => content.postData.component.value === "Heart rate").map(content => content.postData.value),
                         backgroundColor: 'rgb(10%, 100%, 10%)',
                         borderColor: 'rgb(10%, 100%, 10%)',
                         fill: false,
                         label: "Beats per minute",
                         pointRadius: 7
                     }]
-                }}
-                />) : null
+                }} />
+
+            ) : null
     )
 
 
@@ -168,7 +177,7 @@ function Patient({ match }) {
     for (let [key, value] of Object.entries(patientData)) {
         tableData = {
             measured_data: value.postData.component.value,
-            value: value.postData.value.$numberInt,
+            value: value.postData.value,
             date: value.postData.effective,
             time: value.postData.issued,
             device: value.postData.device,
@@ -300,12 +309,16 @@ function Patient({ match }) {
 
     return (
         <div className="patient">
-            <div id="charts">
-                <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
-                <div className="chartHeartrateData">{lineChartheartrateData}</div>
-            </div>
             <div className={classes.root}>
-                {loading ? (<Paper className={classes.paper}>
+                <div id="charts">
+                    <Typography>
+                        {"Latest data fetched at " + patientData.map(content => content.postData.effective)[patientData.length - 1]}
+                    </Typography>
+                    <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
+                    <div className="chartBloodPressureData">{lineChartBloodPressureData}</div>
+                    <div className="chartHeartrateData">{lineChartHeartrateData}</div>
+                </div>
+                {patientData.length ? (<Paper className={classes.paper}>
                     <TableContainer>
                         <Table
                             className={classes.table}
@@ -354,12 +367,13 @@ function Patient({ match }) {
                         onChangeRowsPerPage={handleChangeRowsPerPage}
                     />
                 </Paper>) : (
-                        <ReactBootStrap.Spinner animation="border" />
+                        <Typography>No data found for this user</Typography>
                     )}
             </div>
         </div>
     );
 }
+
 
 
 export default Patient;

@@ -7,9 +7,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+
 
 const Register = props => {
-    const [user, setUser] = useState({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "" });
+    const [user, setUser] = useState({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "", role: "" });
     const [message, setMessage] = useState(null);
     let timerID = useRef(null);
 
@@ -24,7 +29,7 @@ const Register = props => {
     }
 
     const resetForm = () => {
-        setUser({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "" });
+        setUser({ username: "", password: "", password_confirmation: "", email: "", mastodon_app_access_token: "", role: "" });
     }
 
     const onSubmit = e => {
@@ -115,6 +120,19 @@ const Register = props => {
                         type="password"
                         id="mastodon_app_access_token"
                     />
+                    <FormControl component="fieldset">
+                        <RadioGroup aria-label="role" name="role" value={user.role} onChange={onChange}>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="center"
+                                alignItems="center"
+                            >
+                                <FormControlLabel value="doctor" control={<Radio />} label="Doctor" />
+                                <FormControlLabel value="patient" control={<Radio />} label="Patient" />
+                            </Grid>
+                        </RadioGroup>
+                    </FormControl>
                     <Button
                         type="submit"
                         fullWidth

@@ -1,0 +1,22 @@
+.home-cards-container>* .card {
+    background-color: rgb(255, 255, 255);
+    margin-bottom: 10%;
+}
+
+.home-cards-container>* .card:hover {
+    transform: scale(1.02)
+}
+
+.home-cards-container>* .card-body {
+    padding: 1.6rem;
+}
+
+.home-cards-container>* .card-img {
+    width: 80%;
+    margin-left: 10%;
+    display: block;
+}
+
+.card-body {
+    color: black !important
+}

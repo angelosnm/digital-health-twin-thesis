@@ -4,8 +4,6 @@ import Message from './message';
 import { AuthContext } from '../../Context/AuthContext';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -29,7 +27,11 @@ const Login = props => {
             if (isAuthenticated) {
                 authContext.setUser(user);
                 authContext.setIsAuthenticated(isAuthenticated);
-                props.history.push('/home');
+
+                if (user.role === "doctor")
+                    props.history.push('/doctor');
+                else if (user.role === "patient")
+                    props.history.push('/patient');
             }
         });
     }
@@ -76,10 +78,6 @@ const Login = props => {
                         label="Password"
                         type="password"
                         id="password"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox value="remember" color="secondary" />}
-                        label="Remember me"
                     />
                     <Button
                         type="submit"
