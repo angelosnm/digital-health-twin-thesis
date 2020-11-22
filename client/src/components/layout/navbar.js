@@ -2,23 +2,14 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AuthService from '../../Services/AuthService';
 import { AuthContext } from '../../Context/AuthContext';
-import { Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import { makeStyles } from '@material-ui/core/styles';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import storage from 'local-storage-fallback'
-import * as Style from '@material-ui/core/';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import BrightnessHigh from '@material-ui/icons/BrightnessHigh';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
 import HomeIcon from '@material-ui/icons/Home';
 
 
@@ -57,7 +48,7 @@ const Navbar = props => {
             <>
 
                 <Link onClick={onClickLogoutHandler} style={styles.navLinks}>
-                    <AccountCircle />
+                    <PowerSettingsNewIcon />
                 </Link>
             </>
         )
@@ -67,7 +58,7 @@ const Navbar = props => {
     // Toggle theme mode
     const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#e0e0e0'};
+    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#ababab'};
     
   }
   .App {

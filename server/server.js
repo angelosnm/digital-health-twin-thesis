@@ -1,18 +1,8 @@
 require('dotenv').config();
-const mastodon = require("mastodon-api");
 const express = require("express");
 const bodyParser = require('body-parser')
-const FitbitApiClient = require("fitbit-node");
-const moment = require('moment');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const axios = require('axios').default;
-const path = require('path')
-const fs = require('fs');
-const readXlsxFile = require('read-excel-file/node');
-const session = require('express-session')
-const passport = require('passport')
-const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -24,6 +14,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
+console.log("Digital Health Twin")
 
 const authRouter = require('./routes/authRoutes')
 app.use('/auth', authRouter);
@@ -36,16 +27,9 @@ app.use('/patient', patientRouter);
 
 const uri = process.env.DB_CONNECTION
 mongoose
-  .connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
-  .then(() => console.log('Database Connected!'))
+  .connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }) 
+  .then(() => console.log('Successfully connected to database'))
   .catch(err => console.log(err));
-
-const User = require('./models/user.model');
-const mastodonPost = require('./models/mastodonPost.model');
-const mastodonPostAlarm = require('./models/mastodonPostAlarm.model');
-
-console.log("Digital Health Twin")
-
 
 const port = process.env.PORT || 5000;
 

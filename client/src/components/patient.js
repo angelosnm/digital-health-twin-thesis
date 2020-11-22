@@ -12,7 +12,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Typography } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
 import './patient.css';
 
 
@@ -37,8 +36,6 @@ function Patient({ match }) {
         setLoading(true)
 
         setPatientData(patientData);
-
-        console.log(patientData.map(content => content.postData.effective)[patientData.length - 1])
     };
 
     const fetchFitbitFlexChart = async () => {
@@ -310,14 +307,6 @@ function Patient({ match }) {
     return (
         <div className="patient">
             <div className={classes.root}>
-                <div id="charts">
-                    <Typography>
-                        {"Latest data fetched at " + patientData.map(content => content.postData.effective)[patientData.length - 1]}
-                    </Typography>
-                    <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
-                    <div className="chartBloodPressureData">{lineChartBloodPressureData}</div>
-                    <div className="chartHeartrateData">{lineChartHeartrateData}</div>
-                </div>
                 {patientData.length ? (<Paper className={classes.paper}>
                     <TableContainer>
                         <Table
@@ -367,8 +356,19 @@ function Patient({ match }) {
                         onChangeRowsPerPage={handleChangeRowsPerPage}
                     />
                 </Paper>) : (
-                        <Typography>No data found for this user</Typography>
+                        <div></div>
                     )}
+                <div id="charts">
+                    <Typography>
+                        {"Latest data fetched at " + patientData.map(content => content.postData.effective)[patientData.length - 1]}
+                    </Typography>
+                    <div class="column">
+                        <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
+                        <div className="chartBloodPressureData">{lineChartBloodPressureData}</div>
+                        <div className="chartHeartrateData">{lineChartHeartrateData}</div>
+                    </div>
+                </div>
+
             </div>
         </div>
     );

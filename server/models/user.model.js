@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt-nodejs')
 
 const Schema = mongoose.Schema;
 
@@ -9,10 +9,6 @@ const userSchema = new Schema({
         required: true
     },
     password: {
-        type: String,
-        required: true
-    },
-    password_confirmation: {
         type: String,
         required: true
     },
@@ -61,6 +57,18 @@ userSchema.methods.comparePassword = function (password, cb) {
         }
     })
 }
+
+userSchema.pre('save', function (next) { //before save, hash mastodon_app_access_token. if it's already hashed, proceed
+    if (!this.isModified('mastodon_app_access_token'))
+        return next();
+    bcrypt.hash(this.mastodon_app_access_token, 10, (err, mastodon_app_access_tokenHash) => {
+        if (err)
+            return next(err)
+
+        this.mastodon_app_access_token = mastodon_app_access_tokenHash;
+        next()
+    });
+})
 
 const User = mongoose.model("User", userSchema);
 

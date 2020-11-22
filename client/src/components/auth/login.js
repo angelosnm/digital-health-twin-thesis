@@ -55,50 +55,51 @@ const Login = props => {
     const classes = useStyles();
 
     return (
-
-        <Container component="main" maxWidth="xs">
-            <div className={classes.paper}>
-                <form onSubmit={onSubmit} className={classes.form} >
-                    <TextField
-                        onChange={onChange}
-                        variant="outlined"
-                        margin="normal"
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoFocus
-                    />
-                    <TextField
-                        onChange={onChange}
-                        variant="outlined"
-                        margin="normal"
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Sign In
+        <div><img src={require("../../images/heart-icon.png")} width="17%"/>
+            <Container component="main" maxWidth="xs">
+                <div className={classes.paper}>
+                    <form onSubmit={onSubmit} className={classes.form} >
+                        <TextField
+                            onChange={onChange}
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            id="username"
+                            label="Username"
+                            name="username"
+                            autoFocus
+                        />
+                        <TextField
+                            onChange={onChange}
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Sign In
                     </Button>
-                    <Grid container>
-                        <Grid item xs>
-                            <Link href="/register" variant="body2">
-                                {"Don't have an account? Sign Up!"}
-                            </Link>
+                        <Grid container>
+                            <Grid item xs>
+                                <Link href="/register" variant="body2">
+                                    {"Don't have an account? Sign Up!"}
+                                </Link>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </form>
-                {message ? <Message message={message} /> : null}
-            </div>
-        </Container>
+                    </form>
+                    {message ? <Message message={message} /> : null}
+                </div>
+            </Container>
+        </div>
     )
 }
 

@@ -4,4 +4,4 @@
 #Directories
 node_modules/
 tempFiles/
-data/
+dummyData/
