@@ -20,8 +20,7 @@ const signToken = userID => {
 
 authRouter.post('/register', (req, res) => {
     const { username, password, password_confirmation, email, mastodon_app_access_token, role } = req.body;
-    console.log(req.body)
-    User.findOne({ username }, (err, user) => {
+    User.findOne({ email }, (err, user) => {
         if (err) {
             res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
             return;
@@ -29,6 +28,11 @@ authRouter.post('/register', (req, res) => {
 
         if (user) {
             res.status(400).json({ message: { msgBody: "Username already exists", msgError: true } });
+            return;
+        }
+
+        if (user) {
+            res.status(400).json({ message: { msgBody: "Email address already exists", msgError: true } });
             return;
         }
 

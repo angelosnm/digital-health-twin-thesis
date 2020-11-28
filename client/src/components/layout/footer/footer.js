@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import * as ReactBootStrap from 'react-bootstrap';
+import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt, faPhoneSquareAlt } from "@fortawesome/free-solid-svg-icons";
-import { library, icon } from '@fortawesome/fontawesome-svg-core';
+import { library }from '@fortawesome/fontawesome-svg-core';
 import './footer.css'
 
 function Footer() {

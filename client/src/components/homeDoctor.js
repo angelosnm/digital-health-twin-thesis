@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom';
+import React from 'react'
 import './homeDoctor.css'
-import { Row, Col, Container, Card, Button } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 
 function HomeDoctor() {
     return (

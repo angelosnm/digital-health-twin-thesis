@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
-import PropTypes from "prop-types";
+import React from 'react'
 import { useState, useEffect } from 'react'
-import { Row, Col, Container, Card, Button } from 'react-bootstrap';
+import { Row, Col, Card} from 'react-bootstrap';
 
 
 function Account() {

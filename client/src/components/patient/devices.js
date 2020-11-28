@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -108,17 +107,6 @@ function Devices() {
                 </Button>
             </div>
             <div>
-                <TextField
-                    onChange={onChange}
-                    id="bpm"
-                    label="Heartrate upper threshold"
-                    type="number"
-                    name="threshUpperBPM"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                    variant="outlined"
-                />
                 <Grid item xs={12} spacing={3}>
                     <Button
                         type="submit"

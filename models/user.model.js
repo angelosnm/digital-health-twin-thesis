@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt-nodejs')
+const bcrypt = require('bcrypt')
 
 const Schema = mongoose.Schema;
 
@@ -58,17 +58,17 @@ userSchema.methods.comparePassword = function (password, cb) {
     })
 }
 
-userSchema.pre('save', function (next) { //before save, hash mastodon_app_access_token. if it's already hashed, proceed
-    if (!this.isModified('mastodon_app_access_token'))
-        return next();
-    bcrypt.hash(this.mastodon_app_access_token, 10, (err, mastodon_app_access_tokenHash) => {
+userSchema.methods.comparemMastodon_app_access_token = function (mastodon_app_access_token, cb) { //before save, hash the mastodon_app_access_token. if it's already hashed, proceed
+    bcrypt.compare(mastodon_app_access_token, this.mastodon_app_access_token, (err, isMatch) => {
         if (err)
-            return next(err)
-
-        this.mastodon_app_access_token = mastodon_app_access_tokenHash;
-        next()
-    });
-})
+            return cb(err)
+        else {
+            if (!isMatch)
+                return cb(null, isMatch)
+            return cb(null, this)
+        }
+    })
+}
 
 const User = mongoose.model("User", userSchema);
 

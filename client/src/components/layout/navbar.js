@@ -5,7 +5,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import storage from 'local-storage-fallback'
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
@@ -48,7 +48,7 @@ const Navbar = props => {
             <>
 
                 <Link onClick={onClickLogoutHandler} style={styles.navLinks}>
-                    <PowerSettingsNewIcon />
+                    <AccountCircle />
                 </Link>
             </>
         )
@@ -58,7 +58,7 @@ const Navbar = props => {
     // Toggle theme mode
     const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#ababab'};
+    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#e0e0e0'};
     
   }
   .App {
