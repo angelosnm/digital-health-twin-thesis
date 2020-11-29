@@ -1,0 +1,35 @@
+
+version: "3"
+services:
+  dht-client:
+    image: dht-client
+    stdin_open: true
+    ports: 
+      - "5001:5001"
+    networks:
+      - dht-client
+    environment:
+      - PORT=5001
+  dht-server:
+    image: dht-server
+    ports:
+      - "5000:5000"
+    networks:
+      - dht-client
+    depends_on:
+      - mongo
+    env_file: ./.env
+  mongo:
+    image: mongo:3.6.19-xenial
+    ports:
+      - "27017:27017"
+    networks:
+      - dht-client
+    volumes:
+      - mongo-data:/data/db
+networks:
+  dht-client:
+    driver: bridge
+volumes:
+  mongo-data:
+    driver: local
