@@ -2,16 +2,16 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AuthService from '../../Services/AuthService';
 import { AuthContext } from '../../Context/AuthContext';
+import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import storage from 'local-storage-fallback'
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import BrightnessHigh from '@material-ui/icons/BrightnessHigh';
 import HomeIcon from '@material-ui/icons/Home';
-
 
 
 
@@ -48,7 +48,7 @@ const Navbar = props => {
             <>
 
                 <Link onClick={onClickLogoutHandler} style={styles.navLinks}>
-                    <AccountCircle />
+                    <ExitToAppIcon />
                 </Link>
             </>
         )
@@ -58,13 +58,11 @@ const Navbar = props => {
     // Toggle theme mode
     const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(61,61,61)' : '#e0e0e0'};
+    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(18, 18, 18)' : 'rgb(186, 186, 186)'};
     
-  }
-  .App {
-    color: ${props => props.theme.mode === 'dark' ? 'rgb(173 173 173)' : 'rgb(61,61,61)'}; 
-  }
-  `;
+  }`
+  
+  ;
 
     function getInitialTheme() {
         const savedTheme = storage.getItem('theme')
@@ -84,16 +82,25 @@ const Navbar = props => {
         setTheme(theme.mode === 'dark' ? { mode: 'light' } : { mode: 'dark' })
     }
 
+    
 
+    const useStylesAppbar = makeStyles(theme => ({
+        root: {
+            boxShadow: "none",
+            backgroundColor: "#34cfa3",
+            position: "static"
+        }
+    }));
+
+    const classesAppbar = useStylesAppbar();
 
 
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <div classname="navbar">
-                <AppBar position="static">
+            <div>
+                <AppBar className={classesAppbar.root}>
                     <Toolbar >
-
                         {isAuthenticated && user.role === "doctor" ?
                             <Link
                                 className="btn btn-link nav-item nav-link"

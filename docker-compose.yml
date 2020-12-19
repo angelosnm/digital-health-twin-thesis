@@ -1,8 +1,8 @@
-
 version: "3"
 services:
   dht-client:
-    image: dht-client
+    container_name: dht-client
+    image: agelosnm/dht-client:v1
     stdin_open: true
     ports: 
       - "5001:5001"
@@ -11,14 +11,15 @@ services:
     environment:
       - PORT=5001
   dht-server:
-    image: dht-server
+    container_name: dht-server
+    image: agelosnm/dht-server:v1
     ports:
       - "5000:5000"
     networks:
       - dht-client
     depends_on:
       - mongo
-    env_file: ./.env
+    env_file: ./server/.env
   mongo:
     image: mongo:3.6.19-xenial
     ports:

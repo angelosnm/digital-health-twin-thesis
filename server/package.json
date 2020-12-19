@@ -40,12 +40,6 @@
     "uglify-js": "^3.9.4",
     "web-push": "^3.4.4"
   },
-  "scripts": {
-    "start": "nodemon server.js",
-    "server": "nodemon server.js",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
-  },
   "author": "agelosnm",
   "license": "ISC",
   "devDependencies": {

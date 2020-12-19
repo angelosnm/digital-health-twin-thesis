@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import React from 'react'
 import { useState, useEffect } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import Link from '@material-ui/core/Link'
 import { Grid, Card, CardHeader, CardContent, CardMedia, Typography, TextField } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core/styles'
-import Link from '@material-ui/core/Link'
 import SearchIcon from '@material-ui/icons/Search'
 import * as ReactBootStrap from 'react-bootstrap';
 import './patients.css';
@@ -21,7 +21,7 @@ function Patients() {
     const [searchFilter, setSearchFilter] = useState([]);
 
     const fetchPatients = async () => {
-        const data = await fetch('/user/mypatients');
+        const data = await fetch('/auth/doctor/mypatients');
 
         const patients = await data.json();
         setLoading(true)
@@ -57,7 +57,21 @@ function Patients() {
         },
         searchIcon: {
             alignSelf: "flex-end",
-            margin: "5px"
+            margin: "5px",
+
+        },
+        searchTextfield: {
+            '& label.Mui-focused': {
+                color: '#34cfa3',
+            },
+            '& .MuiInput-underline:after': {
+                borderBottomColor: '#34cfa3',
+            },
+            '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                    borderColor: '#34cfa3',
+                },
+            },
         }
     })
 

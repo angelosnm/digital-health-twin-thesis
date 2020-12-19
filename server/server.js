@@ -29,23 +29,20 @@ const authRouter = require('./routes/authRoutes')
 app.use('/auth', authRouter);
 
 const doctorRouter = require('./routes/doctorRoutes')
-app.use('/user', doctorRouter);
+app.use('/auth/doctor', doctorRouter);
 
 const patientRouter = require('./routes/patientRoutes')
-app.use('/patient', patientRouter);
+app.use('/auth/patient', patientRouter);
 
-const uri = process.env.DB_CONNECTION
+
+// const uri = process.env.DB_DOCKER
+const uri = process.env.DB
 mongoose
   .connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
   .then(() => console.log('Database Connected!'))
   .catch(err => console.log(err));
 
-const User = require('./models/user.model');
-const mastodonPost = require('./models/mastodonPost.model');
-const mastodonPostAlarm = require('./models/mastodonPostAlarm.model');
-
 console.log("Digital Health Twin")
-
 
 const port = process.env.PORT || 5000;
 

@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from "prop-types";
 import { useState, useEffect } from 'react'
-import { AuthContext } from '../Context/AuthContext';
-import DataService from '../Services/DataService';
+import { AuthContext } from '../../Context/AuthContext';
+import DataService from '../../Services/DataService';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -31,7 +31,7 @@ function Alarms() {
 
 
     const fetchAlarms = async () => {
-        const data = await fetch('/user/myalarms');
+        const data = await fetch('/doctor/myalarms');
 
         const alarms = await data.json();
 

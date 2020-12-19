@@ -1,17 +1,12 @@
 require('dotenv').config();
-const mastodon = require("mastodon-api");
 const express = require("express");
 const patientRouter = express.Router()
 const bodyParser = require('body-parser')
 const FitbitApiClient = require("fitbit-node");
 const moment = require('moment');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const axios = require('axios').default;
 const path = require('path')
-const fs = require('fs');
 const readXlsxFile = require('read-excel-file/node');
-const session = require('express-session')
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -23,7 +18,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
-const mastodonPost = require('../models/mastodonPost.model');
+const toot = require('../models/toot.model');
 
 let authData = require('./authRoutes');
 patientMastodon = authData.patientMastodon;
@@ -41,6 +36,8 @@ function formatDate(date) {
     return year + "-" + month + "-" + day;
 }
 
+const fetchApiInterval = 10000
+
 
 patientRouter.get('/myposts', (req, res) => {
     patientMastodon.get('accounts/verify_credentials', (error, data) => {
@@ -48,7 +45,6 @@ patientRouter.get('/myposts', (req, res) => {
             console.error(error);
         }
         else {
-            console.log(data)
 
             let username = data.username;
             let totalPosts = data.statuses_count;
@@ -59,7 +55,7 @@ patientRouter.get('/myposts', (req, res) => {
                     console.error(error);
                 }
                 else {
-                    mastodonPost.find({ username }, (err, posts) => {
+                    toot.find({ username }, (err, posts) => {
                         console.log(posts)
                         res.json(posts)
                     })
@@ -75,7 +71,6 @@ patientRouter.get('/mydevices', (req, res) => {
             console.error(error);
         }
         else {
-            // console.log(data)
             let username = data.username;
 
             patientMastodon.get(`accounts/${data.id}/statuses`, (error, data) => {
@@ -83,7 +78,7 @@ patientRouter.get('/mydevices', (req, res) => {
                     console.error(error);
                 }
                 else {
-                    mastodonPost.find({ username }, (err, posts) => {
+                    toot.find({ username }, (err, posts) => {
                         res.json(posts)
                     })
                 }
@@ -111,7 +106,9 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
 
         fitbitClient.get("/profile.json", auth.access_token).then(data => {
 
-            console.log('User authorized')
+            res.redirect('http://localhost:5001/device')
+
+            console.log('User authorized from Fitbit')
 
 
             // defining every when the data will be gathered based on cron jobs 
@@ -152,7 +149,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                 "Date: " +
                                 fetchedData.currentDate + "\n" +
                                 "Issued at: " +
-                                fetchedData.currentTime + "\n"
+                                fetchedData.currentTime + " (UTC)"
                         }
 
                         patientMastodon.post('statuses', params, (error, post) => {
@@ -164,30 +161,26 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                 console.log(post.content);
 
 
-                                mastodonPostDataSteps = {
+                                tootDataSteps = {
 
                                     username: post.account.username,
 
-                                    postData: {
+                                    tootData: {
                                         post_id: post.id,
-                                        code: loincTable.steps.code,
-                                        subject: post.account.username,
-                                        effective: fetchedData.currentDate,
-                                        issued: fetchedData.currentTime,
-                                        perfomer: "Digital Health Twin",
+                                        mastodon_user: post.account.username,
+                                        measured_data: loincTable.steps.name,
+                                        loinc_code: loincTable.steps.code,
                                         value: fetchedData.steps,
                                         device: loincTable.device,
-                                        component: {
-                                            code: loincTable.steps.code,
-                                            value: loincTable.steps.name
-                                        }
+                                        date: fetchedData.currentDate,
+                                        time: fetchedData.currentTime,
+                                        performer: "Digital Health Twin"
                                     }
                                 }
 
 
-
-                                let newMastodonPost = new mastodonPost(mastodonPostDataSteps);
-                                newMastodonPost.save((err) => {
+                                let newToot = new toot(tootDataSteps);
+                                newToot.save((err) => {
                                     if (err) {
                                         res.status(500).json(err)
                                     }
@@ -196,28 +189,25 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                     }
                                 })
 
-                                mastodonPostDataCal = {
+                                tootDataCal = {
 
                                     username: post.account.username,
 
-                                    postData: {
+                                    tootData: {
                                         post_id: post.id,
-                                        code: loincTable.calories.code,
-                                        subject: post.account.username,
-                                        effective: fetchedData.currentDate,
-                                        issued: fetchedData.currentTime,
-                                        perfomer: "Digital Health Twin",
+                                        mastodon_user: post.account.username,
+                                        measured_data: loincTable.calories.name,
+                                        loinc_code: loincTable.calories.code,
                                         value: fetchedData.calories,
                                         device: loincTable.device,
-                                        component: {
-                                            code: loincTable.calories.code,
-                                            value: loincTable.calories.name
-                                        }
+                                        date: fetchedData.currentDate,
+                                        time: fetchedData.currentTime,
+                                        performer: "Digital Health Twin"
                                     }
                                 }
 
-                                newMastodonPost = new mastodonPost(mastodonPostDataCal);
-                                newMastodonPost.save((err) => {
+                                newToot = new toot(tootDataCal);
+                                newToot.save((err) => {
                                     if (err) {
                                         res.status(500).json(err)
                                     }
@@ -232,7 +222,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                 }).catch(err => { res.status(err.status).send(err) });
             };
 
-            setInterval(fetchFitbitFlexData, 60000)
+            setInterval(fetchFitbitFlexData, fetchApiInterval)
 
         }).catch(err => { res.status(err.status).send(err) });
     }).catch(err => { res.status(err.status).send(err) });
@@ -285,7 +275,7 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
                                 "Date: " +
                                 moment().utc().format("MM/DD/YYYY") + "\n" +
                                 "Issued at: " +
-                                moment().utc().format("HH:mm") + "\n"
+                                moment().utc().format("HH:mm") + " (UTC)"
                         }
 
                         patientMastodon.post('statuses', params, (error, post) => {
@@ -294,37 +284,32 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
                             }
                             else {
                                 console.log(`ID: ${post.id} and timestamp: ${post.created_at}`)
-                                console.log(post.content);
 
-                                mastodonPostData = {
+                                tootData = {
 
-                                    username: post.account.username,
+                                    username: post.account.username,                                    
 
-                                    postData: {
+                                    tootData: {
                                         post_id: post.id,
-                                        code: postDetails[Object.keys(postDetails)[j]].LoincID,
-                                        subject: post.account.username,
-                                        effective: moment().utc().format("MM/DD/YYYY"),
-                                        issued: moment().utc().format("HH:mm"),
-                                        perfomer: "Digital Health Twin",
+                                        mastodon_user: post.account.username,
+                                        measured_data: postDetails[Object.keys(postDetails)[j]].loincShortName,
+                                        loinc_code: postDetails[Object.keys(postDetails)[j]].LoincID,
                                         value: postDetails[Object.keys(postDetails)[j]].value,
-                                        device: 'Blood pressure monitor',
-                                        component: {
-                                            code: postDetails[Object.keys(postDetails)[j]].LoincID,
-                                            value: postDetails[Object.keys(postDetails)[j]].loincShortName
-                                        }
+                                        device: loincTable.device,
+                                        date: moment().utc().format("MM/DD/YYYY"),
+                                        time: moment().utc().format("HH:mm"),
+                                        performer: "Digital Health Twin"
                                     }
                                 }
 
 
-                                let newMastodonPost = new mastodonPost(mastodonPostData);
-                                newMastodonPost.save((err) => {
+                                let newtoot = new toot(tootData);
+                                newtoot.save((err) => {
                                     if (err) {
                                         res.status(500).json(err)
                                     }
                                     else {
                                         console.log("Post saved to DB")
-                                        // res.redirect('localhost:5000/device_added')
                                     }
                                 })
                             }

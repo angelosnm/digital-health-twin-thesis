@@ -12,7 +12,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Typography } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
 import './patient.css';
 
 
@@ -31,22 +30,22 @@ function Patient({ match }) {
     const [loading, setLoading] = useState(false);
 
     const fetchPatient = async () => {
-        const data = await fetch(`/user/mypatients/${match.params.patient}`);
+        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
         setLoading(true)
 
         setPatientData(patientData);
 
-        console.log(patientData.map(content => content.postData.effective)[patientData.length - 1])
+        // console.log(patientData.map(content => content.tootData.effective)[patientData.length - 1])
     };
 
     const fetchFitbitFlexChart = async () => {
-        const data = await fetch(`/user/mypatients/${match.params.patient}`);
+        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
 
-        let fitbitFlexData = patientData.filter(content => content.postData.device === "Fitbit Flex")
+        let fitbitFlexData = patientData.filter(content => content.tootData.device === "Fitbit Flex")
 
         let indexStart = fitbitFlexData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
@@ -57,11 +56,11 @@ function Patient({ match }) {
     };
 
     const fetchHeartrateDataChart = async () => {
-        const data = await fetch(`/user/mypatients/${match.params.patient}`);
+        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
 
-        let heartrateData = patientData.filter(content => content.postData.device === " ")
+        let heartrateData = patientData.filter(content => content.tootData.device === " ")
 
         let indexStart = heartrateData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
@@ -76,16 +75,16 @@ function Patient({ match }) {
         patientData.length
             ? (
                 < Line data={{
-                    labels: fitbitFlexDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
+                    labels: fitbitFlexDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Calories burned").map(content => content.postData.value),
+                        data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Calories burned").map(content => content.tootData.value),
                         backgroundColor: 'rgb(83, 144, 186)',
                         borderColor: 'rgb(83, 144, 186)',
                         fill: false,
                         label: "Measuered Calories",
                         pointRadius: 7
                     }, {
-                        data: fitbitFlexDatachartData.filter(content => content.postData.component.value === "Steps").map(content => content.postData.value),
+                        data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Steps").map(content => content.tootData.value),
                         backgroundColor: 'rgb(191, 29, 31)',
                         borderColor: 'rgb(191, 29, 31)',
                         fill: false,
@@ -101,9 +100,9 @@ function Patient({ match }) {
         patientData.length
             ? (
                 <Bar data={{
-                    labels: heartrateDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
+                    labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP sys").map(content => content.postData.value),
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "BP sys").map(content => content.tootData.value),
                         backgroundColor: 'rgb(83, 144, 186)',
                         borderColor: 'rgb(83, 144, 186)',
                         fill: false,
@@ -111,7 +110,7 @@ function Patient({ match }) {
                         pointRadius: 7
                     },
                     {
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "BP dias").map(content => content.postData.value),
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "BP dias").map(content => content.tootData.value),
                         backgroundColor: 'rgb(191, 29, 31)',
                         borderColor: 'rgb(191, 29, 31)',
                         fill: false,
@@ -128,9 +127,9 @@ function Patient({ match }) {
         patientData.length
             ? (
                 <Line data={{
-                    labels: heartrateDatachartData.map(content => content.postData.issued).filter((items, index) => index % 2 === 0),
+                    labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: heartrateDatachartData.filter(content => content.postData.component.value === "Heart rate").map(content => content.postData.value),
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Heart rate").map(content => content.tootData.value),
                         backgroundColor: 'rgb(10%, 100%, 10%)',
                         borderColor: 'rgb(10%, 100%, 10%)',
                         fill: false,
@@ -176,12 +175,12 @@ function Patient({ match }) {
 
     for (let [key, value] of Object.entries(patientData)) {
         tableData = {
-            measured_data: value.postData.component.value,
-            value: value.postData.value,
-            date: value.postData.effective,
-            time: value.postData.issued,
-            device: value.postData.device,
-            loinc: value.postData.component.code
+            measured_data: value.tootData.measured_data,
+            value: value.tootData.value,
+            date: value.tootData.date,
+            time: value.tootData.time,
+            device: value.tootData.device,
+            loinc: value.tootData.loinc_code
         }
         rows.push(tableData)
     }
@@ -312,7 +311,7 @@ function Patient({ match }) {
             <div className={classes.root}>
                 <div id="charts">
                     <Typography>
-                        {"Latest data fetched at " + patientData.map(content => content.postData.effective)[patientData.length - 1]}
+                        {"Latest data fetched at " + patientData.map(content => content.tootData.date)[patientData.length - 1]}
                     </Typography>
                     <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
                     <div className="chartBloodPressureData">{lineChartBloodPressureData}</div>

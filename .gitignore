@@ -1,7 +1,8 @@
 #Files
-.env
+server/.env
 
 #Directories
-node_modules/
+**/node_modules
 tempFiles/
 dummyData/
+thesis_docs/

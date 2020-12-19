@@ -9,7 +9,7 @@ function HomeDoctor() {
                 <Col lg="6" xs="12">
                     <Card>
                         <a className="overflow" href="/mypatients">
-                            <Card.Img src={require('../images/patient.png')}/>
+                            <Card.Img src={require('../../images/patient.png')}/>
                         </a>
                         <Card.Body>
                             <Card.Title>My patients</Card.Title>
@@ -22,7 +22,7 @@ function HomeDoctor() {
                 <Col lg="6" xs="12">
                     <Card>
                         <a className="overflow" href="/myalarms">
-                            <Card.Img src={require('../images/alarm.png')} />
+                            <Card.Img src={require('../../images/alarm.png')} />
                         </a>
                         <Card.Body>
                             <Card.Title>My alarms</Card.Title>

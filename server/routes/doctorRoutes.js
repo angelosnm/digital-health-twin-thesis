@@ -23,8 +23,8 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
-const mastodonPostAlarm = require('../models/mastodonPostAlarm.model');
-const mastodonPost = require('../models/mastodonPost.model');
+const mastodonPostAlarm = require('../models/tootAlarm.model');
+const mastodonPost = require('../models/toot.model');
 
 let authData = require('./authRoutes');
 doctorMastodon = authData.doctorMastodon
@@ -50,19 +50,17 @@ function alarmToot(content, id, username, measuredData, loincCode, measuredDataV
 
         username: data.account.username,
 
-        postData: {
+        tootData: {
           post_id: data.id,
           replied_post_id: params.in_reply_to_id,
-          user: username,
-          date: moment().utc().format("MM/DD/YYYY"),
-          issued: moment().utc().format("HH:mm"),
-          performer: data.account.username,
+          mastodon_user: username,
+          measured_data: measuredData,
+          loinc_code: loincCode,
           value: measuredDataValue,
           device: ' ',
-          component: {
-            code: loincCode,
-            value: measuredData
-          }
+          date: moment().utc().format("MM/DD/YYYY"),
+          time: moment().utc().format("HH:mm"),
+          performer: data.account.username,
         }
       }
 
@@ -91,11 +89,13 @@ doctorRouter.get('/mypatients', (req, res) => {
       console.error(error);
     }
     else {
+      console.log(data)
       doctorMastodon.get('accounts/' + data.id + '/following', (error, data) => {
         if (error) {
           console.error(error);
         }
         else {
+          console.log(data)
           res.json(data)
         }
       });
@@ -158,9 +158,9 @@ doctorRouter.post('/alarming', (req, res) => {
 
                 // console.log(userPosts)
 
-                let userPostsDIAS = userPosts.filter(content => content.postData.component.value === "BP dias")
-                let userPostsSYS = userPosts.filter(content => content.postData.component.value === "BP sys")
-                let userPostsHeartrate = userPosts.filter(content => content.postData.component.value === "Heart rate")
+                let userPostsDIAS = userPosts.filter(content => content.tootData.measured_data === "BP dias")
+                let userPostsSYS = userPosts.filter(content => content.tootData.measured_data === "BP sys")
+                let userPostsHeartrate = userPosts.filter(content => content.tootData.measured_data === "Heart rate")
 
                 let lowerDIASthreshold = parseInt(threshLowerDIAS)
                 let upperDIASthreshold = parseInt(threshUpperDIAS)
@@ -175,23 +175,23 @@ doctorRouter.post('/alarming', (req, res) => {
                 let replyToot;
 
                 for (let i = 0; i < userPostsDIAS.length; i++) {
-                  if (userPostsDIAS[i].postData.value <= lowerDIASthreshold || userPostsDIAS[i].postData.value >= upperDIASthreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].postData.component.value + ': ' + userPostsDIAS[i].postData.value
-                    alarmToot(replyToot, userPostsDIAS[i].postData.id, userPostsDIAS[i].username, userPostsDIAS[i].postData.component.value, userPostsDIAS[i].postData.component.code, userPostsDIAS[i].postData.value)
+                  if (userPostsDIAS[i].tootData.value <= lowerDIASthreshold || userPostsDIAS[i].tootData.value >= upperDIASthreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].tootData.measured_data + ': ' + userPostsDIAS[i].tootData.value
+                    alarmToot(replyToot, userPostsDIAS[i].tootData.id, userPostsDIAS[i].username, userPostsDIAS[i].tootData.measured_data, userPostsDIAS[i].tootData.loinc_code, userPostsDIAS[i].tootData.value)
                   }
                 }
 
                 for (let i = 0; i < userPostsSYS.length; i++) {
-                  if (userPostsSYS[i].postData.value <= lowerSYSthreshold || userPostsSYS[i].postData.value >= upperSYSthreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].postData.component.value + ': ' + userPostsSYS[i].postData.value
-                    alarmToot(replyToot, userPostsSYS[i].postData.id, userPostsSYS[i].username, userPostsSYS[i].postData.component.value, userPostsSYS[i].postData.component.code, userPostsSYS[i].postData.value)
+                  if (userPostsSYS[i].tootData.value <= lowerSYSthreshold || userPostsSYS[i].tootData.value >= upperSYSthreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].tootData.measured_data + ': ' + userPostsSYS[i].tootData.value
+                    alarmToot(replyToot, userPostsSYS[i].tootData.id, userPostsSYS[i].username, userPostsSYS[i].tootData.measured_data, userPostsSYS[i].tootData.loinc_code, userPostsSYS[i].tootData.value)
                   }
                 }
 
                 for (let i = 0; i < userPostsHeartrate.length; i++) {
-                  if (userPostsHeartrate[i].postData.value <= lowerHeartratethreshold || userPostsHeartrate[i].postData.value >= upperHeartratethreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].postData.component.value + ': ' + userPostsHeartrate[i].postData.value
-                    alarmToot(replyToot, userPostsHeartrate[i].postData.id, userPostsHeartrate[i].username, userPostsHeartrate[i].postData.component.value, userPostsHeartrate[i].postData.component.code, userPostsHeartrate[i].postData.value)
+                  if (userPostsHeartrate[i].tootData.value <= lowerHeartratethreshold || userPostsHeartrate[i].tootData.value >= upperHeartratethreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].tootData.measured_data + ': ' + userPostsHeartrate[i].tootData.value
+                    alarmToot(replyToot, userPostsHeartrate[i].tootData.id, userPostsHeartrate[i].username, userPostsHeartrate[i].tootData.measured_data, userPostsHeartrate[i].tootData.loinc_code, userPostsHeartrate[i].tootData.value)
                   }
                 }
 

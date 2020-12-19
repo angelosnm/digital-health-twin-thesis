@@ -6,10 +6,10 @@ import PrivateRoute from './hocs/privateRoute';
 import NonPrivateRoute from './hocs/nonPrivateRoute';
 import Navbar from './components/layout/navbar';
 import Footer from './components/layout/footer/footer';
-import HomeDoctor from './components/homeDoctor';
-import Patients from './components/patients';
-import Patient from './components/patient';
-import Alarms from './components/alarms';
+import HomeDoctor from './components/doctor/homeDoctor';
+import Patients from './components/doctor/patients';
+import Patient from './components/doctor/patient';
+import Alarms from './components/doctor/alarms';
 import Login from './components/auth/login';
 import Register from './components/auth/register';
 import Account from './components/auth/account';
@@ -30,9 +30,7 @@ function App() {
             <Switch>
               <NonPrivateRoute exact path={["/", "/login"]} component={Login} />
               <NonPrivateRoute path="/register" component={Register} />
-
-              <PrivateRoute exact path="/user/account" roles={["doctor", "patient"]} component={Account} />
-
+              
               <PrivateRoute path="/doctor" roles={["doctor"]} component={HomeDoctor} /> 
               <PrivateRoute exact path="/mypatients" roles={["doctor"]} component={Patients} />
               <PrivateRoute path="/mypatients/:patient" roles={["doctor"]} component={Patient} />
@@ -41,7 +39,7 @@ function App() {
               <PrivateRoute exact path="/patient" roles={["patient"]} component={HomePatient} />
               <PrivateRoute path="/myposts" roles={["patient"]} component={Posts} />
               <PrivateRoute path="/mydevices" roles={["patient"]} component={Devices} />
-              <PrivateRoute path="/device_added" roles={["patient"]} component={DeviceAdded} />
+              <PrivateRoute path="/device" roles={["patient"]} component={DeviceAdded} />
             </Switch>
           </div>
         </div>

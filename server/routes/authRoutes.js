@@ -20,9 +20,14 @@ const signToken = userID => {
 
 authRouter.post('/register', (req, res) => {
     const { username, password, password_confirmation, email, mastodon_app_access_token, role } = req.body;
-    User.findOne({ email }, (err, user) => {
+    User.findOne({ username: username, email: email }, (err, user) => {
         if (err) {
-            res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
+            res.status(500).json({ message: { msgBody: "General error has occured", msgError: true } });
+            return;
+        }        
+
+        if (!username || !password || !password_confirmation || !email || !mastodon_app_access_token) {
+            res.status(400).json({ message: { msgBody: "Please enter all fields", msgError: true } });
             return;
         }
 
@@ -31,15 +36,10 @@ authRouter.post('/register', (req, res) => {
             return;
         }
 
-        if (user) {
-            res.status(400).json({ message: { msgBody: "Email address already exists", msgError: true } });
+        if (email.includes('.') === false || email.includes('@') === false) {
+            res.status(400).json({ message: { msgBody: "Invalid E-mail address", msgError: true } });
             return;
-        }
-
-        if (!username || !password || !password_confirmation || !email || !mastodon_app_access_token) {
-            res.status(400).json({ message: { msgBody: "Please enter all fields", msgError: true } });
-            return;
-        }
+        }        
 
         if (password.length < 8) {
             res.status(400).json({ message: { msgBody: "Password must contain at least 8 characters", msgError: true } });
@@ -60,7 +60,7 @@ authRouter.post('/register', (req, res) => {
         const newUser = new User({ username, password, password_confirmation, email, mastodon_app_access_token, role });
         newUser.save(err => {
             if (err)
-                res.status(500).json({ message: { msgBody: "Error has occured", msgError: true } });
+                res.status(500).json({ message: { msgBody: "General error has occured", msgError: true } });
             else
                 res.status(201).json({ message: { msgBody: "Account successfully created", msgError: false } });
         });
@@ -85,6 +85,7 @@ authRouter.post('/login', passport.authenticate('local', { session: false },), (
 
             exports.doctorMastodon = doctorMastodon;
         }
+        
         if (role === "patient") {
             patientMastodon = new mastodon({
                 access_token: mastodon_app_access_token,

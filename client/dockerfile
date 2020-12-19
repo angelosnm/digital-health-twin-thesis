@@ -5,7 +5,6 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-
 # Bundle app source
 COPY . .
 

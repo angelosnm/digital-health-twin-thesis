@@ -7,7 +7,10 @@ import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Paper from '@material-ui/core/Paper';
+import HomeImage from '../../images/home.jpg'
+
 
 const Login = props => {
     const [user, setUser] = useState({ username: "", password: "" });
@@ -23,7 +26,7 @@ const Login = props => {
         AuthService.login(user).then(data => {
             const { isAuthenticated, user, message } = data;
             console.log(message)
-            console.log(user) //prepei na paiksw me to user.role
+            console.log(user)
             if (isAuthenticated) {
                 authContext.setUser(user);
                 authContext.setIsAuthenticated(isAuthenticated);
@@ -37,8 +40,19 @@ const Login = props => {
     }
 
     const useStyles = makeStyles((theme) => ({
+        root: {
+            height: '80vh',
+        },
+        image: {
+            backgroundImage: `url(${HomeImage})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor:
+                theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+        },
         paper: {
-            marginTop: theme.spacing(8),
+            margin: theme.spacing(8, 4),
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -46,59 +60,81 @@ const Login = props => {
         form: {
             width: '100%', // Fix IE 11 issue.
             marginTop: theme.spacing(1),
+            '& label.Mui-focused': {
+                color: '#34cfa3',
+            },
+            '& .MuiInput-underline:after': {
+                borderBottomColor: '#34cfa3',
+            },
+            '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                    borderColor: '#34cfa3',
+                },
+            },
         },
         submit: {
             margin: theme.spacing(3, 0, 2),
-        }
+            backgroundColor: "#34cfa3"
+        },
     }));
 
     const classes = useStyles();
 
-    return (
 
-        <Container component="main" maxWidth="xs">
-            <div className={classes.paper}>
-                <form onSubmit={onSubmit} className={classes.form} >
-                    <TextField
-                        onChange={onChange}
-                        variant="outlined"
-                        margin="normal"
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoFocus
-                    />
-                    <TextField
-                        onChange={onChange}
-                        variant="outlined"
-                        margin="normal"
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Sign In
-                    </Button>
-                    <Grid container>
-                        <Grid item xs>
-                            <Link href="/register" variant="body2">
-                                {"Don't have an account? Sign Up!"}
-                            </Link>
+
+    return (
+        <Grid container component="main" className={classes.root}>
+            <CssBaseline />
+            <Grid item xs={false} sm={4} md={7} className={classes.image} />
+            <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                <div className={classes.paper}>
+                    <img src={require('../../images/heart-icon.png')} width="20%" />
+                    <form onSubmit={onSubmit} className={classes.form} noValidate>
+                        <TextField
+                            onChange={onChange}
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="username"
+                            label="Username"
+                            name="username"
+                            autoComplete="username"
+                            autoFocus
+                        />
+                        <TextField
+                            onChange={onChange}
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Log In
+                        </Button>
+                        <Grid container>
+                            <Grid item xs>
+                                <Link href="/register" variant="body2">
+                                    {"Don't have an account? Sign Up"}
+                                </Link>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </form>
-                {message ? <Message message={message} /> : null}
-            </div>
-        </Container>
+                    </form>
+                    {message ? <Message message={message} /> : null}
+                </div>
+            </Grid>
+        </Grid>
     )
 }
 

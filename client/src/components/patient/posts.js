@@ -28,7 +28,6 @@ function Posts() {
         const posts = await data.json();
         setLoading(true)
 
-        console.log(posts);
         setPosts(posts);
     };
 
@@ -65,18 +64,18 @@ function Posts() {
 
     for (let [value] of Object.entries(posts)) {
         tableData = {
-            measured_data: value.postData.component.value,
-            value: value.postData.value,
-            date: value.postData.effective,
-            time: value.postData.issued,
-            device: value.postData.device,
-            loinc: value.postData.component.code
+            measured_data: value.tootData.measured_data,
+            value: value.tootData.value,
+            date: value.tootData.date,
+            time: value.tootData.time,
+            device: value.tootData.device,
+            loinc: value.tootData.loinc_code
         }
         rows.push(tableData)
     }
 
-    console.log(rows)
-    console.log(tableData)
+    // console.log(rows)
+    // console.log(tableData)
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {

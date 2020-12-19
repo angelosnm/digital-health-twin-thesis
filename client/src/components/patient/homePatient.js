@@ -22,7 +22,7 @@ function HomePatient() {
                 <Col lg="6" xs="12">
                     <Card>
                         <a className="overflow" href="/mydevices">
-                            <Card.Img src={require('../../images/device-icon.png')} />
+                            <Card.Img src={require('../../images/devices.png')} />
                         </a>
                         <Card.Body>
                             <Card.Title>My devices</Card.Title>
