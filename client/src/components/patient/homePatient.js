@@ -8,7 +8,7 @@ function HomePatient() {
             <Row className="justify-content-md-center">
                 <Col lg="6" xs="12">
                     <Card>
-                        <a className="overflow" href="/myposts">
+                        <a className="overflow" href="/dht/myposts">
                             <Card.Img src={require('../../images/mastodon-toots.png')} />
                         </a>
                         <Card.Body>
@@ -21,7 +21,7 @@ function HomePatient() {
                 </Col>
                 <Col lg="6" xs="12">
                     <Card>
-                        <a className="overflow" href="/mydevices">
+                        <a className="overflow" href="/dht/mydevices">
                             <Card.Img src={require('../../images/devices.png')} />
                         </a>
                         <Card.Body>

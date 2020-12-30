@@ -104,14 +104,14 @@ const Navbar = props => {
                         {isAuthenticated && user.role === "doctor" ?
                             <Link
                                 className="btn btn-link nav-item nav-link"
-                                to="/doctor">
+                                to="/dht/doctor">
                                 <HomeIcon />
                             </Link> : null}
 
                         {isAuthenticated && user.role === "patient" ?
                             <Link
                                 className="btn btn-link nav-item nav-link"
-                                to="/patient">
+                                to="/dht/patient">
                                 <HomeIcon />
                             </Link> : null}
 

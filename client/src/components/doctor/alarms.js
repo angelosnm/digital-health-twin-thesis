@@ -31,7 +31,7 @@ function Alarms() {
 
 
     const fetchAlarms = async () => {
-        const data = await fetch('/doctor/myalarms');
+        const data = await fetch('/api/doctor/myalarms');
 
         const alarms = await data.json();
 

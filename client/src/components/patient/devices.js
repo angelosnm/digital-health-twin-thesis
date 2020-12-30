@@ -22,7 +22,7 @@ function Devices() {
     const [time, setTime] = useState();
 
     const fetchPosts = async () => {
-        const data = await fetch('/patient/mydevices');
+        const data = await fetch('/api/patient/mydevices');
 
         const posts = await data.json();
         setLoading(true)
@@ -56,7 +56,7 @@ function Devices() {
                             <CardMedia
                                 title="Fitbit Flex"
                             />
-                            <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/patient/mydevices/fitbit_auth" }} target="_blank">
+                            <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/api/patient/mydevices/fitbit_auth" }} target="_blank">
                                 <HoverImage src={require('../../images/fitbit-flex.jpg')} hoverSrc={require('../../images/device-css-effect.jpg')} className={classes.cardImg} />
                             </Link>
                             <CardContent >

@@ -32,9 +32,9 @@ const Login = props => {
                 authContext.setIsAuthenticated(isAuthenticated);
 
                 if (user.role === "doctor")
-                    props.history.push('/doctor');
+                    props.history.push('/dht/doctor');
                 else if (user.role === "patient")
-                    props.history.push('/patient');
+                    props.history.push('/dht/patient');
             }
         });
     }
@@ -125,7 +125,7 @@ const Login = props => {
                         </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="/register" variant="body2">
+                                <Link href="/dht/register" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>

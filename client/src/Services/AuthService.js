@@ -1,31 +1,33 @@
 export default {
     login: user => {
-        return fetch('/auth/login', {
+        return fetch('/api/auth/login', {
             method: "post",
             body: JSON.stringify(user),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         }).then(res => res.json())
             .then(data => data);
     },
     register: user => {
-        return fetch('/auth/register', {
+        return fetch('/api/auth/register', {
             method: "post",
             body: JSON.stringify(user),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         }).then(res => res.json())
             .then(data => data);
     },
     logout: () => {
-        return fetch('/auth/logout')
+        return fetch('/api/auth/logout')
             .then(res => res.json())
             .then(data => data)
     },
     isAuthenticated: () => {
-        return fetch('/auth/authenticated')
+        return fetch('/api/auth/authenticated')
             .then(res => {
                 if (res.status !== 401)
                     return res.json().then(data => data)

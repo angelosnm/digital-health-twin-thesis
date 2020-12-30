@@ -12,14 +12,12 @@ import Patient from './components/doctor/patient';
 import Alarms from './components/doctor/alarms';
 import Login from './components/auth/login';
 import Register from './components/auth/register';
-import Account from './components/auth/account';
 import HomePatient from './components/patient/homePatient'
 import Posts from './components/patient/posts'
 import Devices from './components/patient/devices'
 import DeviceAdded from './components/patient/deviceAdded'
 
 function App() {
-
 
   return (
     <div>
@@ -28,18 +26,18 @@ function App() {
           <Navbar />
           <div className="container">
             <Switch>
-              <NonPrivateRoute exact path={["/", "/login"]} component={Login} />
-              <NonPrivateRoute path="/register" component={Register} />
-              
-              <PrivateRoute path="/doctor" roles={["doctor"]} component={HomeDoctor} /> 
-              <PrivateRoute exact path="/mypatients" roles={["doctor"]} component={Patients} />
-              <PrivateRoute path="/mypatients/:patient" roles={["doctor"]} component={Patient} />
-              <PrivateRoute path="/myalarms" roles={["doctor"]} component={Alarms} />
+              <NonPrivateRoute exact path={["/", "/dht/login"]} component={Login} />
+              <NonPrivateRoute path="/dht/register" component={Register} />
 
-              <PrivateRoute exact path="/patient" roles={["patient"]} component={HomePatient} />
-              <PrivateRoute path="/myposts" roles={["patient"]} component={Posts} />
-              <PrivateRoute path="/mydevices" roles={["patient"]} component={Devices} />
-              <PrivateRoute path="/device" roles={["patient"]} component={DeviceAdded} />
+              <PrivateRoute path="/dht/doctor" roles={["doctor"]} component={HomeDoctor} />
+              <PrivateRoute exact path="/dht/mypatients" roles={["doctor"]} component={Patients} />
+              <PrivateRoute path="/dht/mypatients/:patient" roles={["doctor"]} component={Patient} />
+              <PrivateRoute path="/dht/myalarms" roles={["doctor"]} component={Alarms} />
+
+              <PrivateRoute path="/dht/patient" roles={["patient"]} component={HomePatient} />
+              <PrivateRoute path="/dht/myposts" roles={["patient"]} component={Posts} />
+              <PrivateRoute path="/dht/mydevices" roles={["patient"]} component={Devices} />
+              <PrivateRoute path="/dht/device" roles={["patient"]} component={DeviceAdded} />
             </Switch>
           </div>
         </div>

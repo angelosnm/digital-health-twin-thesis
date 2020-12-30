@@ -3,6 +3,4 @@ server/.env
 
 #Directories
 **/node_modules
-tempFiles/
-dummyData/
 thesis_docs/

@@ -30,7 +30,7 @@ function Patient({ match }) {
     const [loading, setLoading] = useState(false);
 
     const fetchPatient = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/api/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
         setLoading(true)
@@ -41,7 +41,7 @@ function Patient({ match }) {
     };
 
     const fetchFitbitFlexChart = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/api/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
 
@@ -56,7 +56,7 @@ function Patient({ match }) {
     };
 
     const fetchHeartrateDataChart = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/api/doctor/mypatients/${match.params.patient}`);
 
         const patientData = await data.json();
 

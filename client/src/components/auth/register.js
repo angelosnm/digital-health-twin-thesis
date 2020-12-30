@@ -43,7 +43,7 @@ const Register = props => {
             resetForm();
             if (!message.msgError) {
                 timerID = setTimeout(() => {
-                    props.history.push('/login');
+                    props.history.push('/dht/login');
                 }, 2000) //if register success -> redirect to login
             }
         });
@@ -173,7 +173,7 @@ const Register = props => {
                     </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="/login" variant="body2">
+                                <Link href="/dht/login" variant="body2">
                                     {"Already have an account? Sign in!"}
                                 </Link>
                             </Grid>

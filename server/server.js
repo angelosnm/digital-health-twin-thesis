@@ -1,20 +1,10 @@
 require('dotenv').config();
-const mastodon = require("mastodon-api");
 const express = require("express");
 const bodyParser = require('body-parser')
-const FitbitApiClient = require("fitbit-node");
-const moment = require('moment');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const axios = require('axios').default;
-const path = require('path')
-const fs = require('fs');
-const readXlsxFile = require('read-excel-file/node');
-const session = require('express-session')
-const passport = require('passport')
-const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
-
+const path = require("path");
 const app = express();
 
 app.use(cors());
@@ -24,15 +14,27 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
+// app.use('/static', express.static(path.join(__dirname, '../client/build/static')));
+
+// app.get('*', function(req, res) {
+//   res.sendFile('index.html', {root: path.join(__dirname, '../client/build/')});
+// });
+
+// app.use(express.static(path.join(__dirname, '../client/build')))
+
+// app.get('/', function (req, res) {
+//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'))
+// })
+
 
 const authRouter = require('./routes/authRoutes')
-app.use('/auth', authRouter);
+app.use('/api/auth', authRouter);
 
 const doctorRouter = require('./routes/doctorRoutes')
-app.use('/auth/doctor', doctorRouter);
+app.use('/api/auth/doctor', doctorRouter);
 
 const patientRouter = require('./routes/patientRoutes')
-app.use('/auth/patient', patientRouter);
+app.use('/api/auth/patient', patientRouter);
 
 
 // const uri = process.env.DB_DOCKER

@@ -23,7 +23,7 @@ function Posts() {
     const [loading, setLoading] = useState(false);
 
     const fetchPosts = async () => {
-        const data = await fetch('/patient/myposts');
+        const data = await fetch('/api/auth/patient/myposts');
 
         const posts = await data.json();
         setLoading(true)
@@ -73,9 +73,6 @@ function Posts() {
         }
         rows.push(tableData)
     }
-
-    // console.log(rows)
-    // console.log(tableData)
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {

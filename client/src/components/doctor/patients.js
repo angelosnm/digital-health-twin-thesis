@@ -21,7 +21,7 @@ function Patients() {
     const [searchFilter, setSearchFilter] = useState([]);
 
     const fetchPatients = async () => {
-        const data = await fetch('/auth/doctor/mypatients');
+        const data = await fetch('/api/auth/doctor/mypatients');
 
         const patients = await data.json();
         setLoading(true)
@@ -106,7 +106,7 @@ function Patients() {
                         className={classes.cardMedia}
                         title={patient.username}
                     />
-                    <Link underline="none" component={RouterLink} to={`/mypatients/${patient.username}`}>
+                    <Link underline="none" component={RouterLink} to={`/dht/mypatients/${patient.username}`}>
                         <img src={patient.avatar} style={{ width: "100%" }} />
                     </Link>
                     <CardContent className={classes.cardContent}>
