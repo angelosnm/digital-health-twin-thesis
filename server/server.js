@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require('body-parser')
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path')
 const cookieParser = require('cookie-parser')
 const path = require("path");
 const app = express();
@@ -14,18 +15,11 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
-// app.use('/static', express.static(path.join(__dirname, '../client/build/static')));
+app.use(express.static(path.join(__dirname, 'build')));
 
-// app.get('*', function(req, res) {
-//   res.sendFile('index.html', {root: path.join(__dirname, '../client/build/')});
-// });
-
-// app.use(express.static(path.join(__dirname, '../client/build')))
-
-// app.get('/', function (req, res) {
-//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'))
-// })
-
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
+})
 
 const authRouter = require('./routes/authRoutes')
 app.use('/api/auth', authRouter);

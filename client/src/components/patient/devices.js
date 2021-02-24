@@ -7,9 +7,6 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import { Link as RouterLink } from 'react-router-dom'
-import Link from '@material-ui/core/Link'
-import HoverImage from "react-hover-image";
 
 
 function Devices() {
@@ -56,9 +53,15 @@ function Devices() {
                             <CardMedia
                                 title="Fitbit Flex"
                             />
+<<<<<<< HEAD
                             <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/api/patient/mydevices/fitbit_auth" }} target="_blank">
                                 <HoverImage src={require('../../images/fitbit-flex.jpg')} hoverSrc={require('../../images/device-css-effect.jpg')} className={classes.cardImg} />
                             </Link>
+=======
+                            <a href="http://localhost:5000/auth/patient/mydevices/fitbit_auth">
+                                <img src={require('../../images/fitbit-flex.jpg')} style={{width: "100%"}}></img>
+                            </a>
+>>>>>>> 0ebae85a8230bb0909d7fbb69dbf56f3e14e0bf3
                             <CardContent >
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Fitbit Flex
@@ -76,9 +79,9 @@ function Devices() {
                             <CardMedia
                                 title="Blood pressure monitor"
                             />
-                            <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/patient/mydevices/bpmonitor" }} target="_blank">
-                                <HoverImage src={require('../../images/bpm.jpg')} hoverSrc={require('../../images/device-css-effect.jpg')} className={classes.cardImg} />
-                            </Link>
+                            <a href="http://localhost:5000/auth/patient/mydevices/bpmonitor">
+                                <img src={require('../../images/bpm.jpg')} style={{width: "100%"}}></img>
+                            </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Blood pressure monitor
@@ -96,9 +99,9 @@ function Devices() {
                             <CardMedia
                                 title="Scale"
                             />
-                            <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/patient/mydevices/bpmonitor" }} target="_blank">
-                                <HoverImage src={require('../../images/scale.jpg')} hoverSrc={require('../../images/device-css-effect.jpg')} className={classes.cardImg} />
-                            </Link>
+                            <a href="http://localhost:5000/auth/patient/mydevices/scale">
+                                <img src={require('../../images/scale.jpg')} style={{width: "100%"}}></img>
+                            </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Scale

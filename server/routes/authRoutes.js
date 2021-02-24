@@ -14,7 +14,7 @@ const signToken = userID => {
         sub: userID //for who this jwt has been assigned
     },
         process.env.jwtSecret,
-        { expiresIn: 3600 });
+        { expiresIn: 1800 });
 }
 
 
@@ -24,7 +24,7 @@ authRouter.post('/register', (req, res) => {
         if (err) {
             res.status(500).json({ message: { msgBody: "General error has occured", msgError: true } });
             return;
-        }        
+        }
 
         if (!username || !password || !password_confirmation || !email || !mastodon_app_access_token) {
             res.status(400).json({ message: { msgBody: "Please enter all fields", msgError: true } });
@@ -39,7 +39,7 @@ authRouter.post('/register', (req, res) => {
         if (email.includes('.') === false || email.includes('@') === false) {
             res.status(400).json({ message: { msgBody: "Invalid E-mail address", msgError: true } });
             return;
-        }        
+        }
 
         if (password.length < 8) {
             res.status(400).json({ message: { msgBody: "Password must contain at least 8 characters", msgError: true } });
@@ -85,7 +85,7 @@ authRouter.post('/login', passport.authenticate('local', { session: false },), (
 
             exports.doctorMastodon = doctorMastodon;
         }
-        
+
         if (role === "patient") {
             patientMastodon = new mastodon({
                 access_token: mastodon_app_access_token,

@@ -4,8 +4,7 @@ import Message from './message';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
+import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -99,6 +98,7 @@ const Register = props => {
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <div className={classes.paper}>
                     <img src={require('../../images/heart-icon.png')} width="20%" />
+                    <p style={{ letterSpacing: "2px", fontSize: "22px", color: "#4f4f4f" }}>Digital Health Twin</p>
                     <form onSubmit={onSubmit} className={classes.form} noValidate>
                         <TextField
                             onChange={onChange}
@@ -173,7 +173,7 @@ const Register = props => {
                     </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="/dht/login" variant="body2">
+                                <Link to="/login" variant="body2">
                                     {"Already have an account? Sign in!"}
                                 </Link>
                             </Grid>

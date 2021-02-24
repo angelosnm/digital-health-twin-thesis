@@ -1,22 +1,13 @@
 version: "3"
 services:
-  dht-client:
-    container_name: dht-client
-    image: agelosnm/dht-client:v1
-    stdin_open: true
-    ports: 
-      - "5001:5001"
-    networks:
-      - dht-client
-    environment:
-      - PORT=5001
-  dht-server:
-    container_name: dht-server
-    image: agelosnm/dht-server:v1
+  dht:
+    container_name: dht
+    image: agelosnm/dht:v1
+    restart: always
     ports:
       - "5000:5000"
     networks:
-      - dht-client
+      - dht
     depends_on:
       - mongo
     env_file: ./server/.env
@@ -25,11 +16,11 @@ services:
     ports:
       - "27017:27017"
     networks:
-      - dht-client
+      - dht
     volumes:
       - mongo-data:/data/db
 networks:
-  dht-client:
+  dht:
     driver: bridge
 volumes:
   mongo-data:

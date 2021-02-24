@@ -1,7 +1,8 @@
-import './patient.css';
-import React, { useState, useEffect } from 'react'
-import PropTypes from "prop-types";
+import './toots.css'
+import React from 'react'
+import { useState, useEffect } from 'react'
 import { Line, Bar } from 'react-chartjs-2';
+import PropTypes from "prop-types";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -15,39 +16,36 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Typography } from '@material-ui/core';
 import Grid, { GridSpacing } from '@material-ui/core/Grid';
 
-
-function Patient({ match }) {
+function Toots() {
     useEffect(() => {
-        fetchPatient();
+        fetchToots();
         fetchFitbitFlexChart();
         fetchHeartrateDataChart();
         fetchScaleDataChart();
     }, []);
 
 
-    const [patientToots, setPatientToots] = useState([]);
+    const [toots, setToots] = useState([]);
     const [fitbitFlexDatachartData, setFitbitFlexDatachartData] = useState([]);
     const [heartrateDatachartData, setHeartrateDatachartData] = useState([]);
     const [scaleDataChart, setScaleDataChart] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const fetchPatient = async () => {
-        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
+    const fetchToots = async () => {
+        const data = await fetch('/auth/patient/mytoots');
 
-        const patientToots = await data.json();
+        const toots = await data.json();
         setLoading(true)
 
-        setPatientToots(patientToots);
-        console.log(patientToots)
-
+        setToots(toots);
     };
 
     const fetchFitbitFlexChart = async () => {
-        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch('/auth/patient/mytoots');
 
-        const patientToots = await data.json();
+        const toots = await data.json();
 
-        let fitbitFlexData = patientToots.filter(content => content.tootData.device === "Fitbit Flex")
+        let fitbitFlexData = toots.filter(content => content.tootData.device === "Fitbit Flex")
 
         let indexStart = fitbitFlexData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
@@ -57,11 +55,11 @@ function Patient({ match }) {
     };
 
     const fetchHeartrateDataChart = async () => {
-        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch('/auth/patient/mytoots');
 
-        const patientToots = await data.json();
+        const toots = await data.json();
 
-        let heartrateData = patientToots.filter(content => content.tootData.device === "Blood Pressure Monitor")
+        let heartrateData = toots.filter(content => content.tootData.device === "Blood Pressure Monitor")
 
         let indexStart = heartrateData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
@@ -71,11 +69,11 @@ function Patient({ match }) {
     };
 
     const fetchScaleDataChart = async () => {
-        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch('/auth/patient/mytoots');
 
-        const patientToots = await data.json();
+        const toots = await data.json();
 
-        let scaleData = patientToots.filter(content => content.tootData.device === "Scale")
+        let scaleData = toots.filter(content => content.tootData.device === "Scale")
 
         let indexStart = scaleData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
@@ -86,7 +84,7 @@ function Patient({ match }) {
 
     const lineChartfitbitFlex = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Bar data={{
                     labels: fitbitFlexDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -111,7 +109,7 @@ function Patient({ match }) {
 
     const lineChartBloodPressureData = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Bar data={{
                     labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -138,7 +136,7 @@ function Patient({ match }) {
 
     const lineChartHeartrateData = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Line data={{
                     labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -157,7 +155,7 @@ function Patient({ match }) {
 
     const lineChartWeightData = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Line data={{
                     labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -176,7 +174,7 @@ function Patient({ match }) {
 
     const lineChartFatMassData = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Line data={{
                     labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -195,7 +193,7 @@ function Patient({ match }) {
 
     const lineChartFatPertData = (
 
-        patientToots.length
+        toots.length
             ? (
                 <Line data={{
                     labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
@@ -211,6 +209,7 @@ function Patient({ match }) {
 
             ) : null
     )
+
 
     const columns = [
         {
@@ -234,7 +233,7 @@ function Patient({ match }) {
             label: 'Device',
         },
         {
-            id: 'loinc',
+            id: 'loinc_code',
             label: 'LOINC',
         }
     ];
@@ -243,17 +242,21 @@ function Patient({ match }) {
     let rows = [];
     let tableData = {}
 
-    for (let [key, value] of Object.entries(patientToots)) {
+    for (let [value] of Object.entries(toots)) {
+
         tableData = {
-            measured_data: value.tootData.measured_data,
-            value: value.tootData.value,
-            date: value.tootData.date,
-            time: value.tootData.time,
-            device: value.tootData.device,
-            loinc: value.tootData.loinc_code
+            measured_data: toots[value].tootData.measured_data,
+            value: toots[value].tootData.value,
+            date: toots[value].tootData.date,
+            time: toots[value].tootData.time,
+            device: toots[value].tootData.device,
+            loinc_code: toots[value].tootData.loinc_code
         }
+
         rows.push(tableData)
     }
+
+    console.log(rows.measured_data)
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {
@@ -358,6 +361,10 @@ function Patient({ match }) {
             position: "absolute",
             top: 20,
             width: 1
+        },
+        paperCharts: {
+            padding: theme.spacing(2),
+            textAlign: 'center',
         }
     }));
 
@@ -377,7 +384,8 @@ function Patient({ match }) {
         rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
-        <div className="patient">
+        <div className="toots">
+
             <div className={classes.root}>
                 <Paper className={classes.paper}>
                     <TableContainer>
@@ -406,7 +414,7 @@ function Patient({ match }) {
                                                 <TableCell>{row.date}</TableCell>
                                                 <TableCell>{row.time}</TableCell>
                                                 <TableCell>{row.device}</TableCell>
-                                                <TableCell>{row.loinc}</TableCell>
+                                                <TableCell>{row.loinc_code}</TableCell>
                                             </TableRow>
                                         );
                                     })}
@@ -428,36 +436,36 @@ function Patient({ match }) {
                         onChangeRowsPerPage={handleChangeRowsPerPage}
                     />
                 </Paper>
-                <Typography>
-                    {"Latest data fetched at " + patientToots.map(content => content.tootData.date)[patientToots.length - 1]}
-                </Typography>
-                <div class="flex-container">
-                    <Grid container spacing={10}>
-                        <Grid item xs={12} sm={12}>
-                            {lineChartfitbitFlex}
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            {lineChartBloodPressureData}
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            {lineChartHeartrateData}
-                        </Grid>
-                        <Grid item xs={12} sm={12}>
-                            {lineChartWeightData}
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            {lineChartFatMassData}
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            {lineChartFatPertData}
-                        </Grid>
+            </div>
+            <Typography>
+                {"Latest data fetched at " + toots.map(content => content.tootData.date)[toots.length - 1]}
+            </Typography>
+            <div class="flex-container">
+                <Grid container spacing={10}>
+                    <Grid item xs={12} sm={12}>
+                        {lineChartfitbitFlex}
                     </Grid>
-                </div>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartBloodPressureData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartHeartrateData}
+                    </Grid>
+                    <Grid item xs={12} sm={12}>
+                        {lineChartWeightData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartFatMassData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartFatPertData}
+                    </Grid>
+                </Grid>
             </div>
         </div>
+
     );
+
 }
 
-
-
-export default Patient;
+export default Toots;

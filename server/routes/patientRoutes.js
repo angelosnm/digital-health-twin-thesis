@@ -23,6 +23,8 @@ const toot = require('../models/toot.model');
 let authData = require('./authRoutes');
 patientMastodon = authData.patientMastodon;
 
+tootPostInterval = 5000
+
 const fitbitClient = new FitbitApiClient({
     clientId: process.env.FITBIT_CLIENTID,
     clientSecret: process.env.FITBIT_CLIENT_SECRET,
@@ -39,25 +41,21 @@ function formatDate(date) {
 const fetchApiInterval = 10000
 
 
-patientRouter.get('/myposts', (req, res) => {
+patientRouter.get('/mytoots', (req, res) => {
     patientMastodon.get('accounts/verify_credentials', (error, data) => {
         if (error) {
             console.error(error);
         }
         else {
-
             let username = data.username;
-            let totalPosts = data.statuses_count;
-            let lastActive = data.last_status_at
 
             patientMastodon.get(`accounts/${data.id}/statuses`, (error, data) => {
                 if (error) {
                     console.error(error);
                 }
                 else {
-                    toot.find({ username }, (err, posts) => {
-                        console.log(posts)
-                        res.json(posts)
+                    toot.find({ username }, (err, toots) => {
+                        res.json(toots)
                     })
                 }
             })
@@ -78,8 +76,8 @@ patientRouter.get('/mydevices', (req, res) => {
                     console.error(error);
                 }
                 else {
-                    toot.find({ username }, (err, posts) => {
-                        res.json(posts)
+                    toot.find({ username }, (err, toots) => {
+                        res.json(toots)
                     })
                 }
             })
@@ -90,7 +88,7 @@ patientRouter.get('/mydevices', (req, res) => {
 
 patientRouter.get("/mydevices/fitbit_auth", (req, res,) => {
     // request access to the user's activity, heartrate, location, nutrion, profile, settings, sleep, social, and weight scopes
-    res.redirect(fitbitClient.getAuthorizeUrl('activity heartrate location nutrition profile settings sleep social weight', 'http://localhost:5000/patient/mydevices/fitbit_cb'));
+    res.redirect(fitbitClient.getAuthorizeUrl('activity heartrate location nutrition profile settings sleep social weight', 'http://localhost:5000/auth/patient/mydevices/fitbit_cb'));
 });
 
 // handle the callback from the Fitbit authorization flow
@@ -99,19 +97,19 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
     let callbackCode = req.query.code
 
     // exchange the authorization code we just received for an access token
-    fitbitClient.getAccessToken(callbackCode, 'http://localhost:5000/patient/mydevices/fitbit_cb').then(auth => {
+    fitbitClient.getAccessToken(callbackCode, 'http://localhost:5000/auth/patient/mydevices/fitbit_cb').then(auth => {
 
         let accessToken = auth.access_token
         let refreshToken = auth.refresh_token
 
         fitbitClient.get("/profile.json", auth.access_token).then(data => {
 
-            res.redirect('http://localhost:5001/device')
+            res.redirect('http://localhost:5000/device_added')
 
             console.log('User authorized from Fitbit')
 
 
-            // defining every when the data will be gathered based on cron jobs 
+            // defining every when the data will be gathered based on cron jobs
             function fetchFitbitFlexData() {
 
                 fitbitClient.refreshAccessToken(accessToken, refreshToken).then(auth => {
@@ -166,7 +164,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                     username: post.account.username,
 
                                     tootData: {
-                                        post_id: post.id,
+                                        toot_id: post.id,
                                         mastodon_user: post.account.username,
                                         measured_data: loincTable.steps.name,
                                         loinc_code: loincTable.steps.code,
@@ -174,7 +172,6 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                         device: loincTable.device,
                                         date: fetchedData.currentDate,
                                         time: fetchedData.currentTime,
-                                        performer: "Digital Health Twin"
                                     }
                                 }
 
@@ -185,7 +182,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                         res.status(500).json(err)
                                     }
                                     else {
-                                        console.log("Post saved to DB")
+                                        console.log("Toot saved to DB")
                                     }
                                 })
 
@@ -194,7 +191,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                     username: post.account.username,
 
                                     tootData: {
-                                        post_id: post.id,
+                                        toot_id: post.id,
                                         mastodon_user: post.account.username,
                                         measured_data: loincTable.calories.name,
                                         loinc_code: loincTable.calories.code,
@@ -202,7 +199,6 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                         device: loincTable.device,
                                         date: fetchedData.currentDate,
                                         time: fetchedData.currentTime,
-                                        performer: "Digital Health Twin"
                                     }
                                 }
 
@@ -212,7 +208,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                                         res.status(500).json(err)
                                     }
                                     else {
-                                        console.log("Post saved to DB")
+                                        console.log("Toot saved to DB")
                                     }
                                 })
 
@@ -233,25 +229,25 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
     const directoryPath = path.join(__dirname, '/');
 
 
-    readXlsxFile('data/Copy of Blood pressure data.xlsx').then((rows) => {
+    readXlsxFile('../thesis_docs/tempFiles/dummyData//Copy of Blood pressure data.xlsx').then((rows) => {
 
         for (let i = 1; i < rows.length; i++) {
 
-            rows[i][0] = moment().utc().add(i * 60000, 'milliseconds').format() //date
+            rows[i][0] = moment().utc().add(i * tootPostInterval, 'milliseconds').format() //date
 
             function fetchHeartrateData() {
 
-                let postDetails = {
+                let tootDetails = {
                     SYS: {
                         value: rows[i][1],
                         LoincID: "8480-6",
-                        loincShortName: "BP sys",
+                        loincShortName: "Systolic Blood Pressure",
                         measuredUnit: "mm[Hg]"
                     },
                     DIA: {
                         value: rows[i][2],
                         LoincID: "8462-4",
-                        loincShortName: "BP dias",
+                        loincShortName: "Diastolic Blood Pressure",
                         measuredUnit: "mm[Hg]"
                     },
                     BPM: {
@@ -264,14 +260,14 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
 
                 if (rows[i][0] === moment().utc().format()) {
 
-                    for (let j = 0; j < Object.keys(postDetails).length; j++) {
+                    for (let j = 0; j < Object.keys(tootDetails).length; j++) {
 
                         const params = {
                             status:
                                 "Measured data: " +
-                                postDetails[Object.keys(postDetails)[j]].loincShortName + "\n" +
+                                tootDetails[Object.keys(tootDetails)[j]].loincShortName + "\n" +
                                 "Value: " +
-                                postDetails[Object.keys(postDetails)[j]].value + "\n" +
+                                tootDetails[Object.keys(tootDetails)[j]].value + " " + tootDetails[Object.keys(tootDetails)[j]].measuredUnit + "\n" +
                                 "Date: " +
                                 moment().utc().format("MM/DD/YYYY") + "\n" +
                                 "Issued at: " +
@@ -287,18 +283,17 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
 
                                 tootData = {
 
-                                    username: post.account.username,                                    
+                                    username: post.account.username,
 
                                     tootData: {
-                                        post_id: post.id,
+                                        toot_id: post.id,
                                         mastodon_user: post.account.username,
-                                        measured_data: postDetails[Object.keys(postDetails)[j]].loincShortName,
-                                        loinc_code: postDetails[Object.keys(postDetails)[j]].LoincID,
-                                        value: postDetails[Object.keys(postDetails)[j]].value,
-                                        device: loincTable.device,
+                                        measured_data: tootDetails[Object.keys(tootDetails)[j]].loincShortName,
+                                        loinc_code: tootDetails[Object.keys(tootDetails)[j]].LoincID,
+                                        value: tootDetails[Object.keys(tootDetails)[j]].value,
+                                        device: "Blood Pressure Monitor",
                                         date: moment().utc().format("MM/DD/YYYY"),
                                         time: moment().utc().format("HH:mm"),
-                                        performer: "Digital Health Twin"
                                     }
                                 }
 
@@ -309,7 +304,7 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
                                         res.status(500).json(err)
                                     }
                                     else {
-                                        console.log("Post saved to DB")
+                                        console.log("Toot saved to db")
                                     }
                                 })
                             }
@@ -317,9 +312,111 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
                     }
                 }
             }
-            setInterval(fetchHeartrateData, 60000);
+            setInterval(fetchHeartrateData, tootPostInterval);
         }
     })
+
+    res.redirect('http://localhost:5000/device_added')
+})
+
+patientRouter.get('/mydevices/scale', (req, res) => {
+
+    const directoryPath = path.join(__dirname, '/');
+
+    readXlsxFile('../thesis_docs/tempFiles/dummyData//WithingsScale_data.xlsx').then((rows) => {
+
+        for (let i = 1; i < rows.length; i++) {
+
+            rows[i][0] = moment().utc().add(i * tootPostInterval, 'milliseconds').format() //date
+
+            function fetchWeightData() {
+
+                let tootDetails = {
+                    WGHT: {
+                        value: rows[i][1],
+                        LoincID: "29463-7",
+                        loincShortName: "Weight",
+                        measuredUnit: "Kg"
+                    },
+                    FatPer: {
+                        value: rows[i][2],
+                        LoincID: "41982-0",
+                        loincShortName: "Fat Percentage",
+                        measuredUnit: "%"
+                    },
+                    FatMass: {
+                        value: rows[i][3],
+                        LoincID: "73708-0",
+                        loincShortName: "Fat Mass",
+                        measuredUnit: "Kg"
+                    }
+                }
+
+                if (rows[i][0] === moment().utc().format()) {
+
+                    for (let j = 0; j < Object.keys(tootDetails).length; j++) {
+
+                        const params = {
+                            status:
+                                "Measured data: " +
+                                tootDetails[Object.keys(tootDetails)[j]].loincShortName + "\n" +
+                                "Value: " +
+                                tootDetails[Object.keys(tootDetails)[j]].value + " " + tootDetails[Object.keys(tootDetails)[j]].measuredUnit + "\n" +
+                                "Date: " +
+                                moment().utc().format("MM/DD/YYYY") + "\n" +
+                                "Issued at: " +
+                                moment().utc().format("HH:mm") + " (UTC)"
+                        }
+
+                        patientMastodon.post('statuses', params, (error, post) => {
+                            if (error) {
+                                console.error(error);
+                            }
+                            else {
+                                console.log(`ID: ${post.id} and timestamp: ${post.created_at}`)
+
+                                tootData = {
+
+                                    username: post.account.username,
+
+                                    tootData: {
+                                        toot_id: post.id,
+                                        mastodon_user: post.account.username,
+                                        measured_data: tootDetails[Object.keys(tootDetails)[j]].loincShortName,
+                                        loinc_code: tootDetails[Object.keys(tootDetails)[j]].LoincID,
+                                        value: tootDetails[Object.keys(tootDetails)[j]].value,
+                                        device: "Scale",
+                                        date: moment().utc().format("MM/DD/YYYY"),
+                                        time: moment().utc().format("HH:mm"),
+                                    }
+                                }
+
+
+                                let newtoot = new toot(tootData);
+                                newtoot.save((err) => {
+                                    if (err) {
+                                        res.status(500).json(err)
+                                    }
+                                    else {
+                                        console.log("Toot saved to db")
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+            }
+            setInterval(fetchWeightData, tootPostInterval);
+        }
+    })
+
+    res.redirect('http://localhost:5000/device_added')
+})
+
+patientRouter.get('/stop_data', (req, res) => {
+
+    res.redirect("http://localhost:5000/mydevices")
+    process.exit(1)
 })
 
 
