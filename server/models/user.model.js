@@ -58,30 +58,6 @@ userSchema.methods.comparePassword = function (password, cb) {
     })
 }
 
-userSchema.pre('save', function (next) { //before save, hash the mastodon_app_access_token. if it's already hashed, proceed
-    if (!this.isModified('mastodon_app_access_token'))
-        return next();
-    bcrypt.hash(this.mastodon_app_access_token, 10, (err, mastodon_app_access_tokenHash) => {
-        if (err)
-            return next(err)
-
-        this.mastodon_app_access_token = mastodon_app_access_tokenHash;
-        next()
-    });
-})
-
-userSchema.methods.compare = function (mastodon_app_access_token, cb) { 
-    bcrypt.compare(mastodon_app_access_token, this.mastodon_app_access_token, (err, isMatch) => {
-        if (err)
-            return cb(err)
-        else {
-            if (!isMatch)
-                return cb(null, isMatch)
-            return cb(null, this)
-        }
-    })
-}
-
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

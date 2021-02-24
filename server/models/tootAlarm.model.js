@@ -7,7 +7,7 @@ const tootAlarmSchema = new Schema({
     username: String,
 
     tootData: {
-        post_id: String,
+        toot_id: String,
         replied_post_id: String,
         mastodon_user: String,
         measured_data: String,
@@ -16,8 +16,6 @@ const tootAlarmSchema = new Schema({
         device: String,
         date: String,
         time: String,
-        performer: String,
-        
     }
 
 });

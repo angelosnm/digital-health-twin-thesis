@@ -11,7 +11,7 @@ const cookieExtractor = req => {
     return token;
 }
 
-// authorization 
+// authorization
 passport.use(new JwtStrategy({
     jwtFromRequest: cookieExtractor,
     secretOrKey: process.env.jwtSecret

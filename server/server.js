@@ -1,18 +1,9 @@
 require('dotenv').config();
-const mastodon = require("mastodon-api");
 const express = require("express");
 const bodyParser = require('body-parser')
-const FitbitApiClient = require("fitbit-node");
-const moment = require('moment');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const axios = require('axios').default;
 const path = require('path')
-const fs = require('fs');
-const readXlsxFile = require('read-excel-file/node');
-const session = require('express-session')
-const passport = require('passport')
-const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -24,6 +15,11 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
+})
 
 const authRouter = require('./routes/authRoutes')
 app.use('/auth', authRouter);

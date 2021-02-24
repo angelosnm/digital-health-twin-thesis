@@ -7,7 +7,7 @@ const tootSchema = new Schema({
     username: String,
 
     tootData: {
-        post_id: String,
+        toot_id: String,
         mastodon_user: String,
         measured_data: String,
         loinc_code: String,
@@ -15,9 +15,7 @@ const tootSchema = new Schema({
         device: String,
         date: String,
         time: String,
-        performer: String
     }
-
 });
 
 const toot = mongoose.model("toot", tootSchema);

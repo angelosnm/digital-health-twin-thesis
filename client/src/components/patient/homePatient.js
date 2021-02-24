@@ -1,6 +1,7 @@
 import React from 'react'
 import './homePatient.css'
-import { Row, Col, Card} from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function HomePatient() {
     return (
@@ -8,9 +9,9 @@ function HomePatient() {
             <Row className="justify-content-md-center">
                 <Col lg="6" xs="12">
                     <Card>
-                        <a className="overflow" href="/myposts">
+                        <Link className="overflow" to="/mytoots">
                             <Card.Img src={require('../../images/mastodon-toots.png')} />
-                        </a>
+                        </Link>
                         <Card.Body>
                             <Card.Title>My posts</Card.Title>
                             <Card.Text>
@@ -21,9 +22,9 @@ function HomePatient() {
                 </Col>
                 <Col lg="6" xs="12">
                     <Card>
-                        <a className="overflow" href="/mydevices">
+                        <Link className="overflow" to="/mydevices">
                             <Card.Img src={require('../../images/devices.png')} />
-                        </a>
+                        </Link>
                         <Card.Body>
                             <Card.Title>My devices</Card.Title>
                             <Card.Text>

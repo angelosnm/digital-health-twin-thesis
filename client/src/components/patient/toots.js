@@ -1,6 +1,7 @@
+import './toots.css'
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { Typography } from '@material-ui/core'
+import { Line, Bar } from 'react-chartjs-2';
 import PropTypes from "prop-types";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -12,24 +13,203 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
+import { Typography } from '@material-ui/core';
+import Grid, { GridSpacing } from '@material-ui/core/Grid';
 
-function Posts() {
+function Toots() {
     useEffect(() => {
-        fetchPosts();
+        fetchToots();
+        fetchFitbitFlexChart();
+        fetchHeartrateDataChart();
+        fetchScaleDataChart();
     }, []);
 
 
-    const [posts, setPosts] = useState([]);
+    const [toots, setToots] = useState([]);
+    const [fitbitFlexDatachartData, setFitbitFlexDatachartData] = useState([]);
+    const [heartrateDatachartData, setHeartrateDatachartData] = useState([]);
+    const [scaleDataChart, setScaleDataChart] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const fetchPosts = async () => {
-        const data = await fetch('/patient/myposts');
+    const fetchToots = async () => {
+        const data = await fetch('/auth/patient/mytoots');
 
-        const posts = await data.json();
+        const toots = await data.json();
         setLoading(true)
 
-        setPosts(posts);
+        setToots(toots);
     };
+
+    const fetchFitbitFlexChart = async () => {
+        const data = await fetch('/auth/patient/mytoots');
+
+        const toots = await data.json();
+
+        let fitbitFlexData = toots.filter(content => content.tootData.device === "Fitbit Flex")
+
+        let indexStart = fitbitFlexData.length - 20
+        indexStart = indexStart < 0 ? 0 : indexStart;
+        let fitbitFlexDatachartData = fitbitFlexData.slice(indexStart, fitbitFlexData.length)
+
+        setFitbitFlexDatachartData(fitbitFlexDatachartData);
+    };
+
+    const fetchHeartrateDataChart = async () => {
+        const data = await fetch('/auth/patient/mytoots');
+
+        const toots = await data.json();
+
+        let heartrateData = toots.filter(content => content.tootData.device === "Blood Pressure Monitor")
+
+        let indexStart = heartrateData.length - 20
+        indexStart = indexStart < 0 ? 0 : indexStart;
+        let heartrateDatachartData = heartrateData.slice(indexStart, heartrateData.length)
+
+        setHeartrateDatachartData(heartrateDatachartData);
+    };
+
+    const fetchScaleDataChart = async () => {
+        const data = await fetch('/auth/patient/mytoots');
+
+        const toots = await data.json();
+
+        let scaleData = toots.filter(content => content.tootData.device === "Scale")
+
+        let indexStart = scaleData.length - 20
+        indexStart = indexStart < 0 ? 0 : indexStart;
+        let scaleDataChart = scaleData.slice(indexStart, scaleData.length)
+
+        setScaleDataChart(scaleDataChart);
+    };
+
+    const lineChartfitbitFlex = (
+
+        toots.length
+            ? (
+                <Bar data={{
+                    labels: fitbitFlexDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Calories burned").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(83, 144, 186)',
+                        borderColor: 'rgb(83, 144, 186)',
+                        fill: false,
+                        label: "Measuered Calories",
+                        pointRadius: 7
+                    }, {
+                        data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Steps").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(181, 31, 71)',
+                        borderColor: 'rgb(181, 31, 71)',
+                        fill: false,
+                        label: "Measuered Steps",
+                        pointRadius: 7
+                    }]
+                }}
+                />) : null
+    )
+
+    const lineChartBloodPressureData = (
+
+        toots.length
+            ? (
+                <Bar data={{
+                    labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Systolic Blood Pressure").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(94, 110, 189)',
+                        borderColor: 'rgb(94, 110, 189)',
+                        fill: false,
+                        label: "Systolic Blood Pressure",
+                        pointRadius: 7
+                    },
+                    {
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Diastolic Blood Pressure").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(250, 132, 5)',
+                        borderColor: 'rgb(250, 132, 5)',
+                        fill: false,
+                        label: "Diastolic Blood Pressure",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartHeartrateData = (
+
+        toots.length
+            ? (
+                <Line data={{
+                    labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Heart rate").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(191, 29, 31)',
+                        borderColor: 'rgb(191, 29, 31)',
+                        fill: false,
+                        label: "Beats per minute",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartWeightData = (
+
+        toots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Weight").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(101, 189, 94)',
+                        borderColor: 'rgb(101, 189, 94)',
+                        fill: false,
+                        label: "Weight",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartFatMassData = (
+
+        toots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Fat Mass").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(240, 233, 43)',
+                        borderColor: 'rgb(240, 233, 43)',
+                        fill: false,
+                        label: "Fat Mass",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartFatPertData = (
+
+        toots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Fat Percentage").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(104, 133, 148)',
+                        borderColor: 'rgb(104, 133, 148)',
+                        fill: false,
+                        label: "Fat Percentage",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
 
     const columns = [
         {
@@ -53,7 +233,7 @@ function Posts() {
             label: 'Device',
         },
         {
-            id: 'loinc',
+            id: 'loinc_code',
             label: 'LOINC',
         }
     ];
@@ -62,20 +242,21 @@ function Posts() {
     let rows = [];
     let tableData = {}
 
-    for (let [value] of Object.entries(posts)) {
+    for (let [value] of Object.entries(toots)) {
+
         tableData = {
-            measured_data: value.tootData.measured_data,
-            value: value.tootData.value,
-            date: value.tootData.date,
-            time: value.tootData.time,
-            device: value.tootData.device,
-            loinc: value.tootData.loinc_code
+            measured_data: toots[value].tootData.measured_data,
+            value: toots[value].tootData.value,
+            date: toots[value].tootData.date,
+            time: toots[value].tootData.time,
+            device: toots[value].tootData.device,
+            loinc_code: toots[value].tootData.loinc_code
         }
+
         rows.push(tableData)
     }
 
-    // console.log(rows)
-    // console.log(tableData)
+    console.log(rows.measured_data)
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {
@@ -180,6 +361,10 @@ function Posts() {
             position: "absolute",
             top: 20,
             width: 1
+        },
+        paperCharts: {
+            padding: theme.spacing(2),
+            textAlign: 'center',
         }
     }));
 
@@ -199,69 +384,88 @@ function Posts() {
         rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
-        <div className="posts">
+        <div className="toots">
 
             <div className={classes.root}>
-                {posts.length === 0 ? (
-                    <Typography>My posts
-                        <Paper className={classes.paper}>
-                            <TableContainer>
-                                <Table
-                                    className={classes.table}
-                                    aria-labelledby="tableTitle"
-                                    aria-label="enhanced table"
-                                >
-                                    <EnhancedTableHead
-                                        classes={classes}
-                                        order={order}
-                                        orderBy={orderBy}
-                                        onRequestSort={handleRequestSort}
-                                    />
-                                    <TableBody>
-                                        {stableSort(rows, getComparator(order, orderBy))
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((row, index) => {
-                                                return (
-                                                    <TableRow hover tabIndex={-1} >
-                                                        <TableCell />
-                                                        <TableCell component="th" scope="row" padding="none">
-                                                            {row.measured_data}
-                                                        </TableCell>
-                                                        <TableCell>{row.value}</TableCell>
-                                                        <TableCell>{row.date}</TableCell>
-                                                        <TableCell>{row.time}</TableCell>
-                                                        <TableCell>{row.device}</TableCell>
-                                                        <TableCell>{row.loinc}</TableCell>
-                                                    </TableRow>
-                                                );
-                                            })}
-                                        {emptyRows > 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={6} />
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                            <TablePagination
-                                rowsPerPageOptions={[10, 25, 50, { label: 'All', value: -1 }]}
-                                component="div"
-                                count={rows.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onChangePage={handleChangePage}
-                                onChangeRowsPerPage={handleChangeRowsPerPage}
+                <Paper className={classes.paper}>
+                    <TableContainer>
+                        <Table
+                            className={classes.table}
+                            aria-labelledby="tableTitle"
+                            aria-label="enhanced table"
+                        >
+                            <EnhancedTableHead
+                                classes={classes}
+                                order={order}
+                                orderBy={orderBy}
+                                onRequestSort={handleRequestSort}
                             />
-                        </Paper>
-                    </Typography>) : (
-                        <Typography>
-                            No posts have been found
-                        </Typography>
-                    )}
+                            <TableBody>
+                                {stableSort(rows, getComparator(order, orderBy))
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((row, index) => {
+                                        return (
+                                            <TableRow hover tabIndex={-1} >
+                                                <TableCell />
+                                                <TableCell component="th" scope="row" padding="none">
+                                                    {row.measured_data}
+                                                </TableCell>
+                                                <TableCell>{row.value}</TableCell>
+                                                <TableCell>{row.date}</TableCell>
+                                                <TableCell>{row.time}</TableCell>
+                                                <TableCell>{row.device}</TableCell>
+                                                <TableCell>{row.loinc_code}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                {emptyRows > 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[10, 25, 50, { label: 'All', value: -1 }]}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onChangePage={handleChangePage}
+                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                    />
+                </Paper>
+            </div>
+            <Typography>
+                {"Latest data fetched at " + toots.map(content => content.tootData.date)[toots.length - 1]}
+            </Typography>
+            <div class="flex-container">
+                <Grid container spacing={10}>
+                    <Grid item xs={12} sm={12}>
+                        {lineChartfitbitFlex}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartBloodPressureData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartHeartrateData}
+                    </Grid>
+                    <Grid item xs={12} sm={12}>
+                        {lineChartWeightData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartFatMassData}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        {lineChartFatPertData}
+                    </Grid>
+                </Grid>
             </div>
         </div>
+
     );
 
 }
 
-export default Posts;
+export default Toots;

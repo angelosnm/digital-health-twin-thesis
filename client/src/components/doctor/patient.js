@@ -1,3 +1,4 @@
+import './patient.css';
 import React, { useState, useEffect } from 'react'
 import PropTypes from "prop-types";
 import { Line, Bar } from 'react-chartjs-2';
@@ -12,8 +13,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { Typography } from '@material-ui/core';
-import './patient.css';
-
+import Grid, { GridSpacing } from '@material-ui/core/Grid';
 
 
 function Patient({ match }) {
@@ -21,60 +21,74 @@ function Patient({ match }) {
         fetchPatient();
         fetchFitbitFlexChart();
         fetchHeartrateDataChart();
+        fetchScaleDataChart();
     }, []);
 
 
-    const [patientData, setPatientData] = useState([]);
-    const [fitbitFlexDatachartData, setChartFitbitFlex] = useState([]);
-    const [heartrateDatachartData, setChartheartrateData] = useState([]);
+    const [patientToots, setPatientToots] = useState([]);
+    const [fitbitFlexDatachartData, setFitbitFlexDatachartData] = useState([]);
+    const [heartrateDatachartData, setHeartrateDatachartData] = useState([]);
+    const [scaleDataChart, setScaleDataChart] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const fetchPatient = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
 
-        const patientData = await data.json();
+        const patientToots = await data.json();
         setLoading(true)
 
-        setPatientData(patientData);
+        setPatientToots(patientToots);
+        console.log(patientToots)
 
-        // console.log(patientData.map(content => content.tootData.effective)[patientData.length - 1])
     };
 
     const fetchFitbitFlexChart = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
 
-        const patientData = await data.json();
+        const patientToots = await data.json();
 
-        let fitbitFlexData = patientData.filter(content => content.tootData.device === "Fitbit Flex")
+        let fitbitFlexData = patientToots.filter(content => content.tootData.device === "Fitbit Flex")
 
         let indexStart = fitbitFlexData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
         let fitbitFlexDatachartData = fitbitFlexData.slice(indexStart, fitbitFlexData.length)
 
-        console.log(fitbitFlexDatachartData)
-        setChartFitbitFlex(fitbitFlexDatachartData);
+        setFitbitFlexDatachartData(fitbitFlexDatachartData);
     };
 
     const fetchHeartrateDataChart = async () => {
-        const data = await fetch(`/doctor/mypatients/${match.params.patient}`);
+        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
 
-        const patientData = await data.json();
+        const patientToots = await data.json();
 
-        let heartrateData = patientData.filter(content => content.tootData.device === " ")
+        let heartrateData = patientToots.filter(content => content.tootData.device === "Blood Pressure Monitor")
 
         let indexStart = heartrateData.length - 20
         indexStart = indexStart < 0 ? 0 : indexStart;
         let heartrateDatachartData = heartrateData.slice(indexStart, heartrateData.length)
 
-        console.log(heartrateDatachartData)
-        setChartheartrateData(heartrateDatachartData);
+        setHeartrateDatachartData(heartrateDatachartData);
+    };
+
+    const fetchScaleDataChart = async () => {
+        const data = await fetch(`/auth/doctor/mypatients/${match.params.patient}`);
+
+        const patientToots = await data.json();
+
+        let scaleData = patientToots.filter(content => content.tootData.device === "Scale")
+
+        let indexStart = scaleData.length - 20
+        indexStart = indexStart < 0 ? 0 : indexStart;
+        let scaleDataChart = scaleData.slice(indexStart, scaleData.length)
+
+        setScaleDataChart(scaleDataChart);
     };
 
     const lineChartfitbitFlex = (
 
-        patientData.length
+        patientToots.length
             ? (
-                < Line data={{
+                <Bar data={{
                     labels: fitbitFlexDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
                         data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Calories burned").map(content => content.tootData.value),
@@ -85,8 +99,8 @@ function Patient({ match }) {
                         pointRadius: 7
                     }, {
                         data: fitbitFlexDatachartData.filter(content => content.tootData.measured_data === "Steps").map(content => content.tootData.value),
-                        backgroundColor: 'rgb(191, 29, 31)',
-                        borderColor: 'rgb(191, 29, 31)',
+                        backgroundColor: 'rgb(181, 31, 71)',
+                        borderColor: 'rgb(181, 31, 71)',
                         fill: false,
                         label: "Measuered Steps",
                         pointRadius: 7
@@ -97,24 +111,24 @@ function Patient({ match }) {
 
     const lineChartBloodPressureData = (
 
-        patientData.length
+        patientToots.length
             ? (
                 <Bar data={{
                     labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
-                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "BP sys").map(content => content.tootData.value),
-                        backgroundColor: 'rgb(83, 144, 186)',
-                        borderColor: 'rgb(83, 144, 186)',
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Systolic Blood Pressure").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(94, 110, 189)',
+                        borderColor: 'rgb(94, 110, 189)',
                         fill: false,
-                        label: "Systolic blood pressure",
+                        label: "Systolic Blood Pressure",
                         pointRadius: 7
                     },
                     {
-                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "BP dias").map(content => content.tootData.value),
-                        backgroundColor: 'rgb(191, 29, 31)',
-                        borderColor: 'rgb(191, 29, 31)',
+                        data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Diastolic Blood Pressure").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(250, 132, 5)',
+                        borderColor: 'rgb(250, 132, 5)',
                         fill: false,
-                        label: "Diastolic blood pressure",
+                        label: "Diastolic Blood Pressure",
                         pointRadius: 7
                     }]
                 }} />
@@ -124,14 +138,14 @@ function Patient({ match }) {
 
     const lineChartHeartrateData = (
 
-        patientData.length
+        patientToots.length
             ? (
                 <Line data={{
                     labels: heartrateDatachartData.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
                         data: heartrateDatachartData.filter(content => content.tootData.measured_data === "Heart rate").map(content => content.tootData.value),
-                        backgroundColor: 'rgb(10%, 100%, 10%)',
-                        borderColor: 'rgb(10%, 100%, 10%)',
+                        backgroundColor: 'rgb(191, 29, 31)',
+                        borderColor: 'rgb(191, 29, 31)',
                         fill: false,
                         label: "Beats per minute",
                         pointRadius: 7
@@ -141,6 +155,62 @@ function Patient({ match }) {
             ) : null
     )
 
+    const lineChartWeightData = (
+
+        patientToots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Weight").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(101, 189, 94)',
+                        borderColor: 'rgb(101, 189, 94)',
+                        fill: false,
+                        label: "Weight",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartFatMassData = (
+
+        patientToots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Fat Mass").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(240, 233, 43)',
+                        borderColor: 'rgb(240, 233, 43)',
+                        fill: false,
+                        label: "Fat Mass",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
+
+    const lineChartFatPertData = (
+
+        patientToots.length
+            ? (
+                <Line data={{
+                    labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
+                    datasets: [{
+                        data: scaleDataChart.filter(content => content.tootData.measured_data === "Fat Percentage").map(content => content.tootData.value),
+                        backgroundColor: 'rgb(104, 133, 148)',
+                        borderColor: 'rgb(104, 133, 148)',
+                        fill: false,
+                        label: "Fat Percentage",
+                        pointRadius: 7
+                    }]
+                }} />
+
+            ) : null
+    )
 
     const columns = [
         {
@@ -173,7 +243,7 @@ function Patient({ match }) {
     let rows = [];
     let tableData = {}
 
-    for (let [key, value] of Object.entries(patientData)) {
+    for (let [key, value] of Object.entries(patientToots)) {
         tableData = {
             measured_data: value.tootData.measured_data,
             value: value.tootData.value,
@@ -309,15 +379,7 @@ function Patient({ match }) {
     return (
         <div className="patient">
             <div className={classes.root}>
-                <div id="charts">
-                    <Typography>
-                        {"Latest data fetched at " + patientData.map(content => content.tootData.date)[patientData.length - 1]}
-                    </Typography>
-                    <div className="chartFitbitFlex">{lineChartfitbitFlex}</div>
-                    <div className="chartBloodPressureData">{lineChartBloodPressureData}</div>
-                    <div className="chartHeartrateData">{lineChartHeartrateData}</div>
-                </div>
-                {patientData.length ? (<Paper className={classes.paper}>
+                <Paper className={classes.paper}>
                     <TableContainer>
                         <Table
                             className={classes.table}
@@ -365,9 +427,32 @@ function Patient({ match }) {
                         onChangePage={handleChangePage}
                         onChangeRowsPerPage={handleChangeRowsPerPage}
                     />
-                </Paper>) : (
-                        <Typography>No data found for this user</Typography>
-                    )}
+                </Paper>
+                <Typography>
+                    {"Latest data fetched at " + patientToots.map(content => content.tootData.date)[patientToots.length - 1]}
+                </Typography>
+                <div class="flex-container">
+                    <Grid container spacing={10}>
+                        <Grid item xs={12} sm={12}>
+                            {lineChartfitbitFlex}
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            {lineChartBloodPressureData}
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            {lineChartHeartrateData}
+                        </Grid>
+                        <Grid item xs={12} sm={12}>
+                            {lineChartWeightData}
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            {lineChartFatMassData}
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            {lineChartFatPertData}
+                        </Grid>
+                    </Grid>
+                </div>
             </div>
         </div>
     );

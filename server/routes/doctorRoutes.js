@@ -1,17 +1,9 @@
 require('dotenv').config();
-const mastodon = require("mastodon-api");
 const express = require("express");
 const doctorRouter = express.Router()
 const bodyParser = require('body-parser')
-const FitbitApiClient = require("fitbit-node");
 const moment = require('moment');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const axios = require('axios').default;
-const path = require('path')
-const fs = require('fs');
-const readXlsxFile = require('read-excel-file/node');
-const session = require('express-session')
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -23,13 +15,13 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser())
 
-const mastodonPostAlarm = require('../models/tootAlarm.model');
-const mastodonPost = require('../models/toot.model');
+const mastodonTootAlarm = require('../models/tootAlarm.model');
+const mastodonToot = require('../models/toot.model');
 
 let authData = require('./authRoutes');
 doctorMastodon = authData.doctorMastodon
 
-function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue) {
+function alarmToot(content, id, username, measuredData, loincCode, measuredDataValue, device) {
   const params = {
     status: content
   }
@@ -46,32 +38,31 @@ function alarmToot(content, id, username, measuredData, loincCode, measuredDataV
       console.log(`ID:${data.id}and timestamp:${data.created_at} `);
       console.log(data.content);
 
-      mastodonPostAlarmData = {
+      mastodonTootAlarmData = {
 
         username: data.account.username,
 
         tootData: {
-          post_id: data.id,
-          replied_post_id: params.in_reply_to_id,
+          toot_id: data.id,
+          replied_toot_id: params.in_reply_to_id,
           mastodon_user: username,
           measured_data: measuredData,
           loinc_code: loincCode,
           value: measuredDataValue,
-          device: ' ',
+          device: device,
           date: moment().utc().format("MM/DD/YYYY"),
           time: moment().utc().format("HH:mm"),
-          performer: data.account.username,
         }
       }
 
 
-      let newMastodonPostAlarm = new mastodonPostAlarm(mastodonPostAlarmData);
+      let newMastodonPostAlarm = new mastodonTootAlarm(mastodonTootAlarmData);
       newMastodonPostAlarm.save((err) => {
         if (err) {
           res.status(500).json(err)
         }
         else {
-          console.log("Alarm post saved to DB")
+          console.log("Alarm toot saved to DB")
         }
       })
     }
@@ -89,13 +80,11 @@ doctorRouter.get('/mypatients', (req, res) => {
       console.error(error);
     }
     else {
-      console.log(data)
       doctorMastodon.get('accounts/' + data.id + '/following', (error, data) => {
         if (error) {
           console.error(error);
         }
         else {
-          console.log(data)
           res.json(data)
         }
       });
@@ -119,8 +108,8 @@ doctorRouter.get('/mypatients/:patient', (req, res) => {
           console.error(error);
         }
         else {
-          mastodonPost.find({ username: patient }, (err, posts) => {
-            res.json(posts)
+          mastodonToot.find({ username: patient }, (err, toots) => {
+            res.json(toots)
           })
         }
       });
@@ -132,9 +121,7 @@ doctorRouter.get('/mypatients/:patient', (req, res) => {
 // Fetching alarms
 
 doctorRouter.post('/alarming', (req, res) => {
-  const { threshLowerDIAS, threshLowerSYS, threshLowerBPM, threshUpperSYS, threshUpperDIAS, threshUpperBPM } = req.body
-  console.log(req.body)
-  console.log(threshLowerDIAS)
+  const { threshLowerDIAS, threshLowerSYS, threshLowerBPM, threshUpperDIAS, threshUpperSYS, threshUpperBPM } = req.body
 
   doctorMastodon.get('accounts/verify_credentials', (error, data) => {
     if (error) {
@@ -151,16 +138,14 @@ doctorRouter.post('/alarming', (req, res) => {
           listener.on('message', msg => {
 
             if (msg.event === 'update') {
-              mastodonPost.find((err, posts) => {
-                // console.log(posts)
+              mastodonToot.find((err, toots) => {
 
-                let userPosts = posts.filter(content => content.username === msg.data.account.username)
+                let userToots = toots.filter(content => content.username === msg.data.account.username)
 
-                // console.log(userPosts)
 
-                let userPostsDIAS = userPosts.filter(content => content.tootData.measured_data === "BP dias")
-                let userPostsSYS = userPosts.filter(content => content.tootData.measured_data === "BP sys")
-                let userPostsHeartrate = userPosts.filter(content => content.tootData.measured_data === "Heart rate")
+                let userTootsDIAS = userToots.filter(content => content.tootData.measured_data === "Diastolic Blood Pressure")
+                let userTootsSYS = userToots.filter(content => content.tootData.measured_data === "Systolic Blood Pressure")
+                let userTootsHeartrate = userToots.filter(content => content.tootData.measured_data === "Heart rate")
 
                 let lowerDIASthreshold = parseInt(threshLowerDIAS)
                 let upperDIASthreshold = parseInt(threshUpperDIAS)
@@ -174,24 +159,24 @@ doctorRouter.post('/alarming', (req, res) => {
 
                 let replyToot;
 
-                for (let i = 0; i < userPostsDIAS.length; i++) {
-                  if (userPostsDIAS[i].tootData.value <= lowerDIASthreshold || userPostsDIAS[i].tootData.value >= upperDIASthreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsDIAS[i].username}\n` + userPostsDIAS[i].tootData.measured_data + ': ' + userPostsDIAS[i].tootData.value
-                    alarmToot(replyToot, userPostsDIAS[i].tootData.id, userPostsDIAS[i].username, userPostsDIAS[i].tootData.measured_data, userPostsDIAS[i].tootData.loinc_code, userPostsDIAS[i].tootData.value)
+                for (let i = 0; i < userTootsDIAS.length; i++) {
+                  if (userTootsDIAS[i].tootData.value <= lowerDIASthreshold || userTootsDIAS[i].tootData.value >= upperDIASthreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userTootsDIAS[i].username}\n` + userTootsDIAS[i].tootData.measured_data + ': ' + userTootsDIAS[i].tootData.value
+                    alarmToot(replyToot, userTootsDIAS[i].tootData.id, userTootsDIAS[i].username, userTootsDIAS[i].tootData.measured_data, userTootsDIAS[i].tootData.loinc_code, userTootsDIAS[i].tootData.value, userTootsDIAS[i].tootData.device)
                   }
                 }
 
-                for (let i = 0; i < userPostsSYS.length; i++) {
-                  if (userPostsSYS[i].tootData.value <= lowerSYSthreshold || userPostsSYS[i].tootData.value >= upperSYSthreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsSYS[i].username}\n` + userPostsSYS[i].tootData.measured_data + ': ' + userPostsSYS[i].tootData.value
-                    alarmToot(replyToot, userPostsSYS[i].tootData.id, userPostsSYS[i].username, userPostsSYS[i].tootData.measured_data, userPostsSYS[i].tootData.loinc_code, userPostsSYS[i].tootData.value)
+                for (let i = 0; i < userTootsSYS.length; i++) {
+                  if (userTootsSYS[i].tootData.value <= lowerSYSthreshold || userTootsSYS[i].tootData.value >= upperSYSthreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userTootsSYS[i].username}\n` + userTootsSYS[i].tootData.measured_data + ': ' + userTootsSYS[i].tootData.value
+                    alarmToot(replyToot, userTootsSYS[i].tootData.id, userTootsSYS[i].username, userTootsSYS[i].tootData.measured_data, userTootsSYS[i].tootData.loinc_code, userTootsSYS[i].tootData.value, userTootsSYS[i].tootData.device)
                   }
                 }
 
-                for (let i = 0; i < userPostsHeartrate.length; i++) {
-                  if (userPostsHeartrate[i].tootData.value <= lowerHeartratethreshold || userPostsHeartrate[i].tootData.value >= upperHeartratethreshold) {
-                    replyToot = `Alarm triggered!\nuser: @${userPostsHeartrate[i].username}\n` + userPostsHeartrate[i].tootData.measured_data + ': ' + userPostsHeartrate[i].tootData.value
-                    alarmToot(replyToot, userPostsHeartrate[i].tootData.id, userPostsHeartrate[i].username, userPostsHeartrate[i].tootData.measured_data, userPostsHeartrate[i].tootData.loinc_code, userPostsHeartrate[i].tootData.value)
+                for (let i = 0; i < userTootsHeartrate.length; i++) {
+                  if (userTootsHeartrate[i].tootData.value <= lowerHeartratethreshold || userTootsHeartrate[i].tootData.value >= upperHeartratethreshold) {
+                    replyToot = `Alarm triggered!\nuser: @${userTootsHeartrate[i].username}\n` + userTootsHeartrate[i].tootData.measured_data + ': ' + userTootsHeartrate[i].tootData.value
+                    alarmToot(replyToot, userTootsHeartrate[i].tootData.id, userTootsHeartrate[i].username, userTootsHeartrate[i].tootData.measured_data, userTootsHeartrate[i].tootData.loinc_code, userTootsHeartrate[i].tootData.value, userTootsHeartrate[i].tootData.device)
                   }
                 }
 
@@ -216,11 +201,17 @@ doctorRouter.get('/myalarms', (req, res) => {
     else {
       let username = data.username;
 
-      mastodonPostAlarm.find({ username }, (err, posts) => {
-        res.json(posts)
+      mastodonTootAlarm.find({ username }, (err, toots) => {
+        res.json(toots)
       })
     }
   });
+})
+
+doctorRouter.get('/stop_data', (req, res) => {
+
+  res.redirect("http://localhost:5000/myalarms")
+  process.exit(1)
 })
 
 module.exports = doctorRouter;
