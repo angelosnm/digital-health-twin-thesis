@@ -58,8 +58,8 @@ const Navbar = props => {
     // Toggle theme mode
     const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${props => props.theme.mode === 'dark' ? 'rgb(18, 18, 18)' : 'rgb(186, 186, 186)'};
-    
+    background-color: ${props => props.theme.mode === 'dark' ? '#e4e9eb' : '#323232'};
+    color: ${props => props.theme.mode === 'dark' ? '#e4e9eb' : '#323232'};
   }`
   
   ;
@@ -81,7 +81,6 @@ const Navbar = props => {
     const toggleTheme = (event) => {
         setTheme(theme.mode === 'dark' ? { mode: 'light' } : { mode: 'dark' })
     }
-
     
 
     const useStylesAppbar = makeStyles(theme => ({
@@ -104,14 +103,14 @@ const Navbar = props => {
                         {isAuthenticated && user.role === "doctor" ?
                             <Link
                                 className="btn btn-link nav-item nav-link"
-                                to="/dht/doctor">
+                                to="/doctor">
                                 <HomeIcon />
                             </Link> : null}
 
                         {isAuthenticated && user.role === "patient" ?
                             <Link
                                 className="btn btn-link nav-item nav-link"
-                                to="/dht/patient">
+                                to="/patient">
                                 <HomeIcon />
                             </Link> : null}
 

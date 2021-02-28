@@ -1,3 +1,4 @@
+import './devices.css'
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
@@ -7,24 +8,27 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import StopRoundedIcon from '@material-ui/icons/StopRounded';
+import Fab from '@material-ui/core/Fab';
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 function Devices() {
     useEffect(() => {
-        fetchPosts();
+        fetchtoots();
     }, []);
 
-    const [posts, setPosts] = useState([]);
+    const [toots, setToots] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [time, setTime] = useState();
 
-    const fetchPosts = async () => {
-        const data = await fetch('/api/patient/mydevices');
+    const fetchtoots = async () => {
+        const data = await fetch('/auth/patient/mydevices');
 
-        const posts = await data.json();
+        const toots = await data.json();
         setLoading(true)
 
-        setPosts(posts);
+        setToots(toots);
     };
 
     const useStyles = makeStyles({
@@ -53,15 +57,10 @@ function Devices() {
                             <CardMedia
                                 title="Fitbit Flex"
                             />
-<<<<<<< HEAD
-                            <Link underline="none" component={RouterLink} to={{ pathname: "http://localhost:5000/api/patient/mydevices/fitbit_auth" }} target="_blank">
-                                <HoverImage src={require('../../images/fitbit-flex.jpg')} hoverSrc={require('../../images/device-css-effect.jpg')} className={classes.cardImg} />
-                            </Link>
-=======
                             <a href="http://localhost:5000/auth/patient/mydevices/fitbit_auth">
-                                <img src={require('../../images/fitbit-flex.jpg')} style={{width: "100%"}}></img>
+                            {/* <a href="/auth/patient/mydevices/fitbit_auth"> */}
+                                <img src={require('../../images/fitbit-flex.jpg')} style={{ width: "100%" }}></img>
                             </a>
->>>>>>> 0ebae85a8230bb0909d7fbb69dbf56f3e14e0bf3
                             <CardContent >
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Fitbit Flex
@@ -80,7 +79,8 @@ function Devices() {
                                 title="Blood pressure monitor"
                             />
                             <a href="http://localhost:5000/auth/patient/mydevices/bpmonitor">
-                                <img src={require('../../images/bpm.jpg')} style={{width: "100%"}}></img>
+                            {/* <a href="/auth/patient/mydevices/bpmonitor"> */}
+                                <img src={require('../../images/bpm.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
@@ -100,7 +100,8 @@ function Devices() {
                                 title="Scale"
                             />
                             <a href="http://localhost:5000/auth/patient/mydevices/scale">
-                                <img src={require('../../images/scale.jpg')} style={{width: "100%"}}></img>
+                            {/* <a href="/auth/patient/mydevices/scale"> */}
+                                <img src={require('../../images/scale.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
@@ -113,8 +114,17 @@ function Devices() {
                         </CardActionArea>
                     </Card>
                 </Grid>
-
             </Grid>
+            <div style={{ paddingTop: "5%" }}>
+                <Tooltip title={<span style={{ fontSize: "16px" }}>Stop data fetching</span>}
+                    style={{ backgroundColor: '#ff003c' }}>
+                    <Fab color="red" className={classes.fab}>
+                        <IconButton aria-label="stop">
+                            <StopRoundedIcon onClick={event => window.location.href = '/stop_data'} />
+                        </IconButton>
+                    </Fab>
+                </Tooltip>
+            </div>
         </div >
     );
 }

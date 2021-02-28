@@ -26,13 +26,13 @@ function App() {
           <Navbar />
           <div className="container">
             <Switch>
-              <NonPrivateRoute exact path={["/", "/dht/login"]} component={Login} />
-              <NonPrivateRoute path="/dht/register" component={Register} />
+              <NonPrivateRoute exact path={["/", "/login"]} component={Login} />
+              <NonPrivateRoute path="/register" component={Register} />
 
-              <PrivateRoute path="/dht/doctor" roles={["doctor"]} component={HomeDoctor} />
-              <PrivateRoute exact path="/dht/mypatients" roles={["doctor"]} component={Patients} />
-              <PrivateRoute path="/dht/mypatients/:patient" roles={["doctor"]} component={Patient} />
-              <PrivateRoute path="/dht/myalarms" roles={["doctor"]} component={Alarms} />
+              <PrivateRoute path="/doctor" roles={["doctor"]} component={HomeDoctor} />
+              <PrivateRoute exact path="/mypatients" roles={["doctor"]} component={Patients} />
+              <PrivateRoute path="/mypatients/:patient" roles={["doctor"]} component={Patient} />
+              <PrivateRoute path="/myalarms" roles={["doctor"]} component={Alarms} />
 
               <PrivateRoute exact path="/patient" roles={["patient"]} component={HomePatient} />
               <PrivateRoute path="/mytoots" roles={["patient"]} component={Toots} />

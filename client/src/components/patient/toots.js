@@ -180,8 +180,8 @@ function Toots() {
                     labels: scaleDataChart.map(content => content.tootData.time).filter((items, index) => index % 2 === 0),
                     datasets: [{
                         data: scaleDataChart.filter(content => content.tootData.measured_data === "Fat Mass").map(content => content.tootData.value),
-                        backgroundColor: 'rgb(240, 233, 43)',
-                        borderColor: 'rgb(240, 233, 43)',
+                        backgroundColor: 'rgb(230, 195, 25)',
+                        borderColor: 'rgb(230, 195, 25)',
                         fill: false,
                         label: "Fat Mass",
                         pointRadius: 7
@@ -255,8 +255,6 @@ function Toots() {
 
         rows.push(tableData)
     }
-
-    console.log(rows.measured_data)
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {
@@ -385,7 +383,9 @@ function Toots() {
 
     return (
         <div className="toots">
-
+            <h3 style={{ marginBottom: "5%" }}>
+                {toots.map(content => content.tootData.mastodon_user)[toots.length - 1]}
+            </h3>
             <div className={classes.root}>
                 <Paper className={classes.paper}>
                     <TableContainer>
@@ -437,10 +437,11 @@ function Toots() {
                     />
                 </Paper>
             </div>
-            <Typography>
-                {"Latest data fetched at " + toots.map(content => content.tootData.date)[toots.length - 1]}
-            </Typography>
+
             <div class="flex-container">
+                <h3>
+                    {"Data last updated at " + toots.map(content => content.tootData.date)[toots.length - 1]}
+                </h3>
                 <Grid container spacing={10}>
                     <Grid item xs={12} sm={12}>
                         {lineChartfitbitFlex}

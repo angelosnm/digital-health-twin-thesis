@@ -38,9 +38,6 @@ function formatDate(date) {
     return year + "-" + month + "-" + day;
 }
 
-const fetchApiInterval = 10000
-
-
 patientRouter.get('/mytoots', (req, res) => {
     patientMastodon.get('accounts/verify_credentials', (error, data) => {
         if (error) {
@@ -156,8 +153,6 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                             }
                             else {
                                 console.log(`ID: ${post.id} and timestamp: ${post.created_at}`);
-                                console.log(post.content);
-
 
                                 tootDataSteps = {
 
@@ -218,7 +213,7 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
                 }).catch(err => { res.status(err.status).send(err) });
             };
 
-            setInterval(fetchFitbitFlexData, fetchApiInterval)
+            setInterval(fetchFitbitFlexData, tootPostInterval)
 
         }).catch(err => { res.status(err.status).send(err) });
     }).catch(err => { res.status(err.status).send(err) });
@@ -264,6 +259,9 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
 
                         const params = {
                             status:
+                                "Device: " +
+                                "Blood Pressure Monitor" + "\n" +
+                                "Measured data: " +
                                 "Measured data: " +
                                 tootDetails[Object.keys(tootDetails)[j]].loincShortName + "\n" +
                                 "Value: " +
@@ -316,7 +314,8 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
         }
     })
 
-    res.redirect('http://localhost:5000/device_added')
+    // res.redirect('http://localhost:5000/device_added')
+    res.redirect('/device_added')
 })
 
 patientRouter.get('/mydevices/scale', (req, res) => {
@@ -358,6 +357,8 @@ patientRouter.get('/mydevices/scale', (req, res) => {
 
                         const params = {
                             status:
+                                "Device: " +
+                                "Scale" + "\n" +
                                 "Measured data: " +
                                 tootDetails[Object.keys(tootDetails)[j]].loincShortName + "\n" +
                                 "Value: " +
@@ -410,12 +411,14 @@ patientRouter.get('/mydevices/scale', (req, res) => {
         }
     })
 
-    res.redirect('http://localhost:5000/device_added')
+    // res.redirect('http://localhost:5000/device_added')
+    res.redirect('/device_added')
 })
 
 patientRouter.get('/stop_data', (req, res) => {
 
-    res.redirect("http://localhost:5000/mydevices")
+    // res.redirect("http://localhost:5000/mydevices")
+    res.redirect("/mydevices")
     process.exit(1)
 })
 

@@ -25,16 +25,14 @@ const Login = props => {
         e.preventDefault();
         AuthService.login(user).then(data => {
             const { isAuthenticated, user, message } = data;
-            console.log(message)
-            console.log(user)
             if (isAuthenticated) {
                 authContext.setUser(user);
                 authContext.setIsAuthenticated(isAuthenticated);
 
                 if (user.role === "doctor")
-                    props.history.push('/dht/doctor');
+                    props.history.push('/doctor');
                 else if (user.role === "patient")
-                    props.history.push('/dht/patient');
+                    props.history.push('/patient');
             }
         });
     }

@@ -5,7 +5,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path')
 const cookieParser = require('cookie-parser')
-const path = require("path");
 const app = express();
 
 app.use(cors());
@@ -22,13 +21,13 @@ app.get('/', function (req, res) {
 })
 
 const authRouter = require('./routes/authRoutes')
-app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 
 const doctorRouter = require('./routes/doctorRoutes')
-app.use('/api/auth/doctor', doctorRouter);
+app.use('/auth/doctor', doctorRouter);
 
 const patientRouter = require('./routes/patientRoutes')
-app.use('/api/auth/patient', patientRouter);
+app.use('/auth/patient', patientRouter);
 
 
 // const uri = process.env.DB_DOCKER

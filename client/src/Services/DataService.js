@@ -1,6 +1,6 @@
 export default {
     postAlarmThresholds: thresh => {
-        return fetch('/api/auth/doctor/alarming', {
+        return fetch('/auth/doctor/alarming', {
             method: "post",
             body: JSON.stringify(thresh),
             headers: {
