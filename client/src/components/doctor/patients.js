@@ -2,8 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import Link from '@material-ui/core/Link'
-import { Grid, Card, CardHeader, CardContent, CardMedia, Typography, TextField } from '@material-ui/core'
-import Avatar from '@material-ui/core/Avatar';
+import { Grid, Card, CardContent, CardMedia, Typography, TextField } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import SearchIcon from '@material-ui/icons/Search'
 import * as ReactBootStrap from 'react-bootstrap';
@@ -21,7 +20,7 @@ function Patients() {
     const [searchFilter, setSearchFilter] = useState([]);
 
     const fetchPatients = async () => {
-        const data = await fetch('/api/auth/doctor/mypatients');
+        const data = await fetch('/auth/doctor/mypatients');
 
         const patients = await data.json();
         setLoading(true)
@@ -34,15 +33,6 @@ function Patients() {
             paddingTop: "20px",
             paddingLeft: "50px",
             paddingRight: "50px"
-        },
-        card: {
-            backgroundColor: "#c0caca"
-        },
-        cardHeader: {
-            marginRight: "12%",
-            fontSize: "20px",
-            fontWeight: "bold",
-            letterSpacing: "1px"
         },
         cardContent: {
             textAlign: "center"
@@ -72,52 +62,32 @@ function Patients() {
                     borderColor: '#34cfa3',
                 },
             },
+            '&. MuiInputBase-input MuiInput-input': {
+                borderColor: '#34cfa3',
+                color: '#34cfa3'
+            }
         }
     })
-
-    function formatDate(lastTootDate) {
-
-        if (lastTootDate == null) {
-            return ""
-        }
-        else {
-            let date = lastTootDate.split('T')[0]
-            let time = lastTootDate.split('T')[1].split('.')[0] + " (UTC)"
-
-            return date + " " + time
-        }
-    }
 
     const getPatientCard = (patient) => {
         return (
             < Grid item xs={12} sm={4} key={patient.id} >
                 <Card className={classes.card}>
-                    <CardHeader
-                        avatar={
-                            <Avatar aria-label="recipe" className={classes.avatar}>
-                                {patient.username[0].toUpperCase()}
-                            </Avatar>
-                        }
-                        titleTypographyProps={{ variant: 'title' }}
-                        title={patient.username.toUpperCase()}
-                        className={classes.cardHeader}
-                    />
                     <CardMedia
                         className={classes.cardMedia}
                         title={patient.username}
                     />
-                    <Link underline="none" component={RouterLink} to={`/dht/mypatients/${patient.username}`}>
+                    <Link underline="none" component={RouterLink} to={`/mypatients/${patient.username}`}>
                         <img src={patient.avatar} style={{ width: "100%" }} />
                     </Link>
                     <CardContent className={classes.cardContent}>
                         <Typography variant="p">
-                            Total toots: {patient.statuses_count}
+                            <strong>{patient.username}</strong>
                         </Typography>
                     </CardContent>
-                    <hr></hr>
                     <CardContent className={classes.cardContent}>
                         <Typography variant="p">
-                            Last active: {formatDate(patient.last_status_at)}
+                            <p>Total toots: {patient.statuses_count}</p>
                         </Typography>
                     </CardContent>
                 </Card>
@@ -133,7 +103,6 @@ function Patients() {
 
     return (
         <div className="patients">
-            <h2> My Patients </h2>
             {loading ? (
                 <div>
                     <div className={classes.searchContainer}>

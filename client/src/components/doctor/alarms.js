@@ -1,3 +1,4 @@
+import './alarms.css'
 import React from 'react'
 import PropTypes from "prop-types";
 import { useState, useEffect } from 'react'
@@ -16,7 +17,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import { Typography } from '@material-ui/core';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import AlarmsImage from '../../images/alarms.png'
 
 function Alarms() {
 
@@ -31,7 +33,7 @@ function Alarms() {
 
 
     const fetchAlarms = async () => {
-        const data = await fetch('/api/doctor/myalarms');
+        const data = await fetch('/auth/doctor/myalarms');
 
         const alarms = await data.json();
 
@@ -68,7 +70,6 @@ function Alarms() {
     }
 
 
-
     // Table data
     const columns = [
         {
@@ -94,7 +95,7 @@ function Alarms() {
             label: 'Device'
         },
         {
-            id: 'loinc',
+            id: 'loinc_code',
             label: 'LOINC',
         },
     ];
@@ -102,18 +103,32 @@ function Alarms() {
     let rows = [];
     let tableData = {}
 
-    for (let [key, value] of Object.entries(alarms)) {
-        tableData = {
-            user: value.postData.user,
-            measured_data: value.postData.component.value,
-            value: value.postData.value,
-            date: value.postData.date,
-            time: value.postData.issued,
-            device: value.postData.device,
-            loinc: value.postData.component.code
-        }
-        rows.push(tableData)
+    // for (let [key, value] of Object.entries(alarms)) {
+    //     tableData = {
+    //         user: value.tootData.user,
+    //         measured_data: value.tootData.component.value,
+    //         value: value.tootData.value,
+    //         date: value.tootData.date,
+    //         time: value.tootData.issued,
+    //         device: value.tootData.device,
+    //         loinc: value.tootData.component.code
+    //     }
+    //     rows.push(tableData)
+    // }
 
+    for (let [value] of Object.entries(alarms)) {
+
+        tableData = {
+            user: alarms[value].tootData.mastodon_user,
+            measured_data: alarms[value].tootData.measured_data,
+            value: alarms[value].tootData.value,
+            date: alarms[value].tootData.date,
+            time: alarms[value].tootData.time,
+            device: alarms[value].tootData.device,
+            loinc_code: alarms[value].tootData.loinc_code
+        }
+
+        rows.push(tableData)
     }
 
     function descendingComparator(a, b, orderBy) {
@@ -224,28 +239,49 @@ function Alarms() {
         }
     }));
 
-    const useStylesThresholdsFields = makeStyles((theme) => ({
+    const useStyles = makeStyles((theme) => ({
         root: {
-            '& .MuiTextField-root': {
-                margin: theme.spacing(3),
-                width: '25ch',
-                marginTop: "10%",
-
-            }
+            height: '72vh',
         },
-        submit: {
-            margin: theme.spacing(3, 0, 2),
+        image: {
+            backgroundImage: `url(${AlarmsImage})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor:
+                theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
         },
         paper: {
-            marginTop: theme.spacing(8),
+            margin: theme.spacing(8, 4),
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-
+        },
+        form: {
+            width: '100%', // Fix IE 11 issue.
+            marginTop: theme.spacing(1),
+            marginBottom: "10%",
+            '& label.Mui-focused': {
+                color: '#34cfa3',
+            },
+            '& .MuiInput-underline:after': {
+                borderBottomColor: '#34cfa3',
+            },
+            '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                    borderColor: '#34cfa3',
+                },
+            },
+        },
+        submit: {
+            margin: theme.spacing(3, 0, 2),
+            backgroundColor: "#34cfa3"
         },
     }));
 
-    const classesThresholdsFields = useStylesThresholdsFields();
+    const classes = useStyles();
+
+    // const classesThresholdsFields = useStylesThresholdsFields();
     const classesTable = useStylesTable();
     const [order, setOrder] = React.useState("asc");
     const [orderBy, setOrderBy] = React.useState("calories");
@@ -264,158 +300,162 @@ function Alarms() {
 
     return (
         <div className="alarms">
-            {alarms.length ? (<Paper className={classesTable.paper}>
-                <TableContainer>
-                    <Table
-                        className={classesTable.table}
-                        aria-labelledby="tableTitle"
-                        aria-label="enhanced table"
-                    >
-                        <EnhancedTableHead
-                            classesTable={classesTable}
-                            order={order}
-                            orderBy={orderBy}
-                            onRequestSort={handleRequestSort}
-                        />
-                        <TableBody>
-                            {stableSort(rows, getComparator(order, orderBy))
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row, index) => {
-                                    return (
-                                        <TableRow hover tabIndex={-1} >
-                                            <TableCell />
-                                            <TableCell component="th" scope="row" padding="none">{row.user}</TableCell>
-                                            <TableCell>{row.measured_data}</TableCell>
-                                            <TableCell>{row.value}</TableCell>
-                                            <TableCell>{row.date}</TableCell>
-                                            <TableCell>{row.time}</TableCell>
-                                            <TableCell>{row.device}</TableCell>
-                                            <TableCell>{row.loinc}</TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            {emptyRows > 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25, 50, { label: 'All', value: -1 }]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-            </Paper>) : (
-                    null
-                )}
-
             < div className="alarming-thresholds">
-                <Typography>Define your alarming thresholds from the below buttons</Typography>
-                <form className={classesThresholdsFields.root} onSubmit={onSubmit}>
-                    <Grid container
-                        justify="center"
-                        alignItems="center">
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="sys"
-                                label="Diastolic blood pressure lower threshold"
-                                type="number"
-                                name="threshLowerDIAS"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="dias"
-                                label="Systolic blood pressure lower threshold"
-                                type="number"
-                                name="threshLowerSYS"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="bpm"
-                                label="Heartrate lower threshold"
-                                type="number"
-                                name="threshLowerBPM"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="sys"
-                                label="Diastolic blood pressure upper threshold"
-                                type="number"
-                                name="threshUpperDIAS"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="dias"
-                                label="Systolic blood pressure upper threshold"
-                                type="number"
-                                name="threshUpperSYS"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={4} spacing={3}>
-                            <TextField
-                                onChange={onChange}
-                                id="bpm"
-                                label="Heartrate upper threshold"
-                                type="number"
-                                name="threshUpperBPM"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                variant="outlined"
-                            />
-                        </Grid>
+                <h3>Define your alarming thresholds</h3>
+                <Grid container component="main" className={classes.root}>
+                    <CssBaseline />
+                    <Grid item xs={false} sm={4} md={7} className={classes.image} />
+                    <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                        <div className={classes.paper}>
+                            <form onSubmit={onSubmit} className={classes.form} noValidate>
+                                {/* <form className={classesThresholdsFields.root} onSubmit={onSubmit}> */}
+                                <TextField
+                                    onChange={onChange}
+                                    id="dias_lower"
+                                    label="Diastolic blood pressure lower threshold"
+                                    type="number"
+                                    name="threshLowerDIAS"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
+                                <TextField
+                                    onChange={onChange}
+                                    id="sys_lower"
+                                    label="Systolic blood pressure lower threshold"
+                                    type="number"
+                                    name="threshLowerSYS"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
+                                <TextField
+                                    onChange={onChange}
+                                    id="bpm_lower"
+                                    label="Heartrate lower threshold"
+                                    type="number"
+                                    name="threshLowerBPM"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
+                                <TextField
+                                    onChange={onChange}
+                                    id="dias_upper"
+                                    label="Diastolic blood pressure upper threshold"
+                                    type="number"
+                                    name="threshUpperDIAS"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
+                                <TextField
+                                    onChange={onChange}
+                                    id="sys_upper"
+                                    label="Systolic blood pressure upper threshold"
+                                    type="number"
+                                    name="threshUpperSYS"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
+                                <TextField
+                                    onChange={onChange}
+                                    id="bpm_upper"
+                                    label="Heartrate upper threshold"
+                                    type="number"
+                                    name="threshUpperBPM"
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    margin="normal"
+                                    autoFocus
+                                    fullWidth
+                                />
 
-                        <Grid item xs={12} spacing={3}>
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classesThresholdsFields.submit}
-                                style={{ width: "15%" }}
-                            >
-                                Submit
-                    </Button>
-                        </Grid>
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.submit}
+                                    style={{ width: "15%" }}
+                                >
+                                    Submit
+                                </Button>
+                            </form>
+                        </div>
                     </Grid>
-                </form>
+                </Grid>
             </div>
-        </div >
+            <div className="alarms-toots-table">
+                {alarms.length ? (<Paper className={classesTable.paper}>
+                    <TableContainer>
+                        <Table
+                            className={classesTable.table}
+                            aria-labelledby="tableTitle"
+                            aria-label="enhanced table"
+                        >
+                            <EnhancedTableHead
+                                classesTable={classesTable}
+                                order={order}
+                                orderBy={orderBy}
+                                onRequestSort={handleRequestSort}
+                            />
+                            <TableBody>
+                                {stableSort(rows, getComparator(order, orderBy))
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((row, index) => {
+                                        return (
+                                            <TableRow hover tabIndex={-1} >
+                                                <TableCell />
+                                                <TableCell component="th" scope="row" padding="none">{row.user}</TableCell>
+                                                <TableCell>{row.measured_data}</TableCell>
+                                                <TableCell>{row.value}</TableCell>
+                                                <TableCell>{row.date}</TableCell>
+                                                <TableCell>{row.time}</TableCell>
+                                                <TableCell>{row.device}</TableCell>
+                                                <TableCell>{row.loinc_code}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                {emptyRows > 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[10, 25, 50, { label: 'All', value: -1 }]}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onChangePage={handleChangePage}
+                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                    />
+                </Paper>) : (
+                        null
+                    )}
+            </div >
+        </div>
     );
 }
 

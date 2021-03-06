@@ -428,10 +428,10 @@ function Patient({ match }) {
                         onChangeRowsPerPage={handleChangeRowsPerPage}
                     />
                 </Paper>
-                <Typography>
-                    {"Latest data fetched at " + patientToots.map(content => content.tootData.date)[patientToots.length - 1]}
-                </Typography>
                 <div class="flex-container">
+                    <h3>
+                        {"Data last updated at " + patientToots.map(content => content.tootData.date)[patientToots.length - 1]}
+                    </h3>
                     <Grid container spacing={10}>
                         <Grid item xs={12} sm={12}>
                             {lineChartfitbitFlex}
