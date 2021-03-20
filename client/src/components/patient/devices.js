@@ -8,11 +8,8 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import StopRoundedIcon from '@material-ui/icons/StopRounded';
-import Fab from '@material-ui/core/Fab';
-import Tooltip from '@material-ui/core/Tooltip';
-
+import { Link as RouterLink } from 'react-router-dom'
+import Link from '@material-ui/core/Link'
 
 function Devices() {
     useEffect(() => {
@@ -58,7 +55,6 @@ function Devices() {
                                 title="Fitbit Flex"
                             />
                             <a href="http://localhost:5000/auth/patient/mydevices/fitbit_auth">
-                            {/* <a href="/auth/patient/mydevices/fitbit_auth"> */}
                                 <img src={require('../../images/fitbit-flex.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent >
@@ -78,17 +74,16 @@ function Devices() {
                             <CardMedia
                                 title="Blood pressure monitor"
                             />
-                            <a href="http://localhost:5000/auth/patient/mydevices/bpmonitor">
-                            {/* <a href="/auth/patient/mydevices/bpmonitor"> */}
+                            <a href="/auth/patient/mydevices/bpmonitor">
                                 <img src={require('../../images/bpm.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Blood pressure monitor
-                        </Typography>
+                                </Typography>
                                 <Typography variant="body2" color="textSecondary" component="p">
                                     Track your heart rate data
-                        </Typography>
+                                </Typography>
                             </CardContent>
                         </CardActionArea>
                     </Card>
@@ -99,32 +94,21 @@ function Devices() {
                             <CardMedia
                                 title="Scale"
                             />
-                            <a href="http://localhost:5000/auth/patient/mydevices/scale">
-                            {/* <a href="/auth/patient/mydevices/scale"> */}
+                            <a href="/auth/patient/mydevices/scale" onclick="alert('Hello world!')">
                                 <img src={require('../../images/scale.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="h2">
                                     Scale
-                        </Typography>
+                                </Typography>
                                 <Typography variant="body2" color="textSecondary" component="p">
                                     Track your weight data
-                        </Typography>
+                                </Typography>
                             </CardContent>
                         </CardActionArea>
                     </Card>
                 </Grid>
             </Grid>
-            <div style={{ paddingTop: "5%" }}>
-                <Tooltip title={<span style={{ fontSize: "16px" }}>Stop data fetching</span>}
-                    style={{ backgroundColor: '#ff003c' }}>
-                    <Fab color="red" className={classes.fab}>
-                        <IconButton aria-label="stop">
-                            <StopRoundedIcon onClick={event => window.location.href = '/stop_data'} />
-                        </IconButton>
-                    </Fab>
-                </Tooltip>
-            </div>
         </div >
     );
 }

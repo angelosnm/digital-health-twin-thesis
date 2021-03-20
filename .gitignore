@@ -4,3 +4,4 @@ server/.env
 #Directories
 **/node_modules
 thesis_docs/
+**/build
