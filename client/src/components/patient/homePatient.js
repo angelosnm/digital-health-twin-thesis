@@ -13,9 +13,9 @@ function HomePatient() {
                             <Card.Img src={require('../../images/mastodon-toots.png')} />
                         </Link>
                         <Card.Body>
-                            <Card.Title>My posts</Card.Title>
+                            <Card.Title>My toots</Card.Title>
                             <Card.Text>
-                                See your posts
+                                See your toots
                             </Card.Text>
                         </Card.Body>
                     </Card>

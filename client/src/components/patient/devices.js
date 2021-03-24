@@ -54,7 +54,7 @@ function Devices() {
                             <CardMedia
                                 title="Fitbit Flex"
                             />
-                            <a href="http://localhost:5000/auth/patient/mydevices/fitbit_auth">
+                            <a href="http://localhost:5000/auth/patient/mydevices/fitbit_auth" target="_blank">
                                 <img src={require('../../images/fitbit-flex.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent >
@@ -74,7 +74,7 @@ function Devices() {
                             <CardMedia
                                 title="Blood pressure monitor"
                             />
-                            <a href="/auth/patient/mydevices/bpmonitor">
+                            <a href="/auth/patient/mydevices/bpmonitor" target="_blank">
                                 <img src={require('../../images/bpm.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>
@@ -94,7 +94,7 @@ function Devices() {
                             <CardMedia
                                 title="Scale"
                             />
-                            <a href="/auth/patient/mydevices/scale" onclick="alert('Hello world!')">
+                            <a href="/auth/patient/mydevices/scale" target="_blank">
                                 <img src={require('../../images/scale.jpg')} style={{ width: "100%" }}></img>
                             </a>
                             <CardContent>

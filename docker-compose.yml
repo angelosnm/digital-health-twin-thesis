@@ -3,6 +3,7 @@ services:
   dht:
     container_name: dht
     image: agelosnm/dht:v1
+    stdin_open: true
     restart: always
     ports:
       - "5000:5000"

@@ -208,11 +208,12 @@ patientRouter.get("/mydevices/fitbit_cb", (req, res) => {
 
         }).catch(err => { res.status(err.status).send(err) });
     }).catch(err => { res.status(err.status).send(err) });
+    res.redirect("http://localhost:5000/#/added")
 });
 
 patientRouter.get('/mydevices/bpmonitor', (req, res) => {
 
-    readXlsxFile('../thesis_docs/tempFiles/dummyData//Copy of Blood pressure data.xlsx').then((rows) => {
+    readXlsxFile('dummyData//Copy of Blood pressure data.xlsx').then((rows) => {
 
         for (let i = 1; i < rows.length; i++) {
 
@@ -300,13 +301,14 @@ patientRouter.get('/mydevices/bpmonitor', (req, res) => {
             setInterval(fetchHeartrateData, tootPostInterval);
         }
     })
+    res.redirect("http://localhost:5000/#/added")
 })
 
 patientRouter.get('/mydevices/scale', (req, res) => {
 
     const directoryPath = path.join(__dirname, '/');
 
-    readXlsxFile('../thesis_docs/tempFiles/dummyData//WithingsScale_data.xlsx').then((rows) => {
+    readXlsxFile('dummyData//WithingsScale_data.xlsx').then((rows) => {
 
         for (let i = 1; i < rows.length; i++) {
 
@@ -397,6 +399,7 @@ patientRouter.get('/mydevices/scale', (req, res) => {
             }
         }
     })
+    res.redirect("http://localhost:5000/#/added")
 })
 
 module.exports = patientRouter;

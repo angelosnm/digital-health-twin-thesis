@@ -30,8 +30,8 @@ const patientRouter = require('./routes/patientRoutes')
 app.use('/auth/patient', patientRouter);
 
 
-// const uri = process.env.DB_DOCKER
-const uri = process.env.DB
+const uri = process.env.DB_DOCKER
+// const uri = process.env.DB
 mongoose
   .connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
   .then(() => console.log('Database Connected!'))

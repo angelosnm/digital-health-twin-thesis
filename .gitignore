@@ -5,3 +5,4 @@ server/.env
 **/node_modules
 thesis_docs/
 **/build
+/server/dummyData

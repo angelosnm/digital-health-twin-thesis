@@ -15,6 +15,7 @@ import Register from './components/auth/register';
 import HomePatient from './components/patient/homePatient'
 import Toots from './components/patient/toots'
 import Devices from './components/patient/devices'
+import DeviceAdded from './components/patient/deviceAdded'
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
               <PrivateRoute exact path="/patient" roles={["patient"]} component={HomePatient} />
               <PrivateRoute path="/mytoots" roles={["patient"]} component={Toots} />
               <PrivateRoute path="/mydevices" roles={["patient"]} component={Devices} />
+              <PrivateRoute path="/added" roles={["patient"]} component={DeviceAdded} />
             </Switch>
           </div>
         </div>
